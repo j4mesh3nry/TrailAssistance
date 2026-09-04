@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './styles/Concerns.css';
 import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import next from '../../assets/next.png';
@@ -14,7 +13,6 @@ const Concerns = ({ currentUser, onFormValid, onSaveInfo, onSaveAndNavigate }) =
   const [additionalComments, setAdditionalComments] = useState('');
   const [errors, setErrors] = useState({});
   const db = getFirestore();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserInfo = async () => {

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './styles/WebsiteFeedback.css';
 import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import next from '../../assets/next.png';
@@ -10,7 +9,6 @@ const WebsiteFeedback = ({ currentUser }) => {
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const db = getFirestore();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFeedback = async () => {

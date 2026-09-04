@@ -29,6 +29,7 @@ const PersonalInfo = ({ currentUser, onFormValid, onSaveInfo, onSaveAndNavigate 
   useEffect(() => {
     console.log('Validating form with localUserInfo:', localUserInfo);
     validateForm(localUserInfo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localUserInfo]);
 
   const handleChange = (e) => {
