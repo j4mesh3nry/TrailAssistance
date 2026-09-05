@@ -56,7 +56,7 @@ const Login = () => {
                 {ROLES.map((r) => (
                   <button key={r.id} type="button" role="radio" aria-checked={role === r.id} className={`t-pick ${role === r.id ? 'selected' : ''}`} onClick={() => setRole(r.id)} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 8, padding: '12px' }}>
                     <span className="t-pick-icon" style={{ background: r.bg, color: r.fg, width: 38, height: 38 }}><r.Icon size={19} aria-hidden="true" /></span>
-                    <span><strong style={{ fontSize: '0.8rem' }}>{r.label}</strong><span style={{ fontSize: '0.68rem' }}>{r.desc}</span></span>
+                    <span className="t-pick-text"><strong style={{ fontSize: '0.8rem' }}>{r.label}</strong><span style={{ fontSize: '0.68rem' }}>{r.desc}</span></span>
                   </button>
                 ))}
               </div>

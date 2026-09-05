@@ -302,7 +302,10 @@ table.t-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-
 .t-pick { display: flex; gap: 12px; align-items: center; text-align: left; background: #fff; border: 1.5px solid var(--t-line); border-radius: 13px; padding: 13px 14px; cursor: pointer; font-family: inherit; transition: border-color 0.14s, background 0.14s, box-shadow 0.14s; width: 100%; }
 .t-pick:hover { border-color: var(--t-navy-700); }
 .t-pick.selected { border-color: var(--t-navy-900); background: #f4f7ff; box-shadow: inset 0 0 0 1px var(--t-navy-900); }
-.t-pick-icon { width: 44px; height: 44px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; align-self: center; flex-shrink: 0; }
+.t-pick-icon { width: 46px; height: 46px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; align-self: center; flex-shrink: 0; }
+.t-pick-text { display: flex; flex-direction: column; justify-content: center; gap: 3px; min-width: 0; flex: 1; align-self: center; }
+.t-pick-text > strong { display: block; font-size: 0.88rem; line-height: 1.25; color: var(--t-navy-950); }
+.t-pick-text > span { display: block; font-size: 0.75rem; line-height: 1.4; color: var(--t-slate-500); }
 .t-pick strong { display: block; font-size: 0.84rem; color: var(--t-navy-950); }
 .t-pick span { display: block; font-size: 0.74rem; color: var(--t-slate-500); margin-top: 2px; }
 .t-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
