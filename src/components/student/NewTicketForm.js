@@ -127,7 +127,7 @@ export const NewTicketForm = ({ onNavigate, onCreated }) => {
                 </button>
               ))}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 14 }}>
+            <div className="t-form-2col" style={{ marginTop: 14 }}>
               <div className="t-field" style={{ margin: 0 }}>
                 <label className="t-label" htmlFor="f-title">Subject <span className="t-req">*</span></label>
                 <input id="f-title" className="t-input" value={form.title} onChange={set('title')} placeholder="e.g. Capstone II prerequisite override" />
@@ -164,7 +164,7 @@ export const NewTicketForm = ({ onNavigate, onCreated }) => {
                 ))}
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="t-form-2col">
               <div className="t-field" style={{ margin: 0 }}>
                 <label className="t-label" htmlFor="f-slot">Preferred slot <span className="t-req">*</span></label>
                 <input id="f-slot" type="datetime-local" className="t-input" value={form.preferredMeetingSlot} onChange={set('preferredMeetingSlot')} />
@@ -218,7 +218,7 @@ export const NewTicketForm = ({ onNavigate, onCreated }) => {
               </div>
               <h3 style={{ fontSize: '1.05rem' }}>{form.title || '(untitled)'}</h3>
               <p style={{ fontSize: '0.82rem', color: 'var(--t-slate-600)', marginTop: 4 }}>{form.purposeOfVisit}</p>
-              <dl style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '6px 12px', marginTop: 12, fontSize: '0.8rem' }}>
+              <dl className="t-kv" style={{ marginTop: 12, fontSize: '0.8rem' }}>
                 <dt style={{ color: 'var(--t-slate-500)' }}>Student</dt><dd><strong>{activeUser?.name} ({activeUser?.studentId})</strong></dd>
                 <dt style={{ color: 'var(--t-slate-500)' }}>Slot</dt><dd><strong>{form.preferredMeetingSlot ? new Date(form.preferredMeetingSlot).toLocaleString() : '—'}</strong> • {form.meetingMode}</dd>
                 <dt style={{ color: 'var(--t-slate-500)' }}>Contact</dt><dd>{form.preferredContact}</dd>
@@ -246,3 +246,6 @@ export const NewTicketForm = ({ onNavigate, onCreated }) => {
 };
 
 export default NewTicketForm;
+
+
+

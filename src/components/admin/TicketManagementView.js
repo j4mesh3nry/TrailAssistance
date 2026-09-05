@@ -158,7 +158,7 @@ export const TicketManagementView = ({ focusTicket, clearFocus }) => {
             <div className="t-drawer-body">
               <LifecycleBar status={dStatus} />
               <p style={{ fontSize: '0.83rem', background: '#f8fafc', border: '1px solid var(--t-line)', borderRadius: 10, padding: 12, marginTop: 12 }}>{open.details}</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
+              <div className="t-form-2col" style={{ marginTop: 12 }}>
                 <div className="t-field" style={{ margin: 0 }}>
                   <label className="t-label" htmlFor="dq-status">Move lifecycle to</label>
                   <select id="dq-status" className="t-select" value={dStatus} onChange={(e) => setDStatus(e.target.value)}>
@@ -210,4 +210,5 @@ export const TicketManagementView = ({ focusTicket, clearFocus }) => {
 };
 
 export default TicketManagementView;
+
 

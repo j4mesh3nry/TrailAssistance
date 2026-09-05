@@ -40,10 +40,10 @@ const Landing = () => {
           <img src={ustplogo} alt="USTP seal" style={{ width: 38, height: 38, objectFit: 'contain' }} />
           <div style={{ minWidth: 0 }}>
             <div style={{ font: "800 0.82rem var(--t-font-display)", color: 'var(--t-navy-950)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>University of Science and Technology of Southern Philippines</div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--t-slate-500)', fontWeight: 600 }}>Office of the College Dean • TrailAssistance</div>
+            <div className="t-hide-sm" style={{ fontSize: '0.7rem', color: 'var(--t-slate-500)', fontWeight: 600 }}>Office of the College Dean • TrailAssistance</div>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
-            <Link to="/sign-up" className="t-btn t-btn-ghost t-btn-sm">Create account</Link>
+            <Link to="/sign-up" className="t-btn t-btn-ghost t-btn-sm t-hide-sm">Create account</Link>
             <Link to="/login" className="t-btn t-btn-primary t-btn-sm">Sign in <ArrowRight size={14} aria-hidden="true" /></Link>
           </div>
         </div>

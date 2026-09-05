@@ -105,7 +105,7 @@ export const KioskView = () => {
             <h2 style={{ fontSize: '1.3rem', marginTop: 8, color: 'var(--t-navy-950)' }}>Walk-in check-in</h2>
             <p style={{ fontSize: '0.84rem', color: 'var(--t-slate-500)' }}>Large keys, instant slip. Nothing is sent off-campus.</p>
             <form onSubmit={checkin} style={{ marginTop: 14 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div className="t-form-2col">
                 <div className="t-field" style={{ margin: 0 }}>
                   <label className="t-label" htmlFor="k-id">Student ID</label>
                   <input id="k-id" className="t-input" style={{ fontSize: '1.05rem', padding: '14px' }} value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="2024-10492" inputMode="numeric" />
@@ -191,6 +191,7 @@ export const KioskView = () => {
 };
 
 export default KioskView;
+
 
 
 

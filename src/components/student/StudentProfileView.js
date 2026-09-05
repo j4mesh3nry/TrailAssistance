@@ -33,7 +33,7 @@ export const StudentProfileView = () => {
             <h2 style={{ fontSize: '1.2rem', marginTop: 10 }}>{activeUser?.name}</h2>
             <p style={{ fontSize: '0.78rem', color: 'var(--t-slate-500)' }}>{activeUser?.studentId} • {activeUser?.email}</p>
             <p style={{ marginTop: 8 }}><span className="t-badge t-status-resolved"><Award size={12} aria-hidden="true" /> {activeUser?.academicStanding || "Dean's Lister"}</span></p>
-            <dl style={{ textAlign: 'left', marginTop: 14, fontSize: '0.8rem', display: 'grid', gridTemplateColumns: '110px 1fr', gap: '7px 10px' }}>
+            <dl className="t-kv" style={{ textAlign: 'left', marginTop: 14, fontSize: '0.8rem' }}>
               <dt style={{ color: 'var(--t-slate-500)' }}>Program</dt><dd><strong>{activeUser?.program}</strong></dd>
               <dt style={{ color: 'var(--t-slate-500)' }}>College</dt><dd>{activeUser?.college}</dd>
               <dt style={{ color: 'var(--t-slate-500)' }}>Year</dt><dd>{activeUser?.yearOfStudy}</dd>
@@ -63,7 +63,7 @@ export const StudentProfileView = () => {
             <h3 className="t-section-title">Contact & emergency</h3>
             <p className="t-section-sub">Saved on this device.</p>
             <form onSubmit={(e) => { e.preventDefault(); showToast('Contact preferences saved', 'success'); }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div className="t-form-2col">
                 <div className="t-field" style={{ margin: 0 }}>
                   <label className="t-label" htmlFor="p-phone">Mobile</label>
                   <div className="t-input-icon"><Phone size={15} aria-hidden="true" /><input id="p-phone" className="t-input" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} /></div>
@@ -92,4 +92,6 @@ export const StudentProfileView = () => {
 };
 
 export default StudentProfileView;
+
+
 

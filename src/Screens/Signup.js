@@ -50,7 +50,7 @@ const SignUp = () => {
               <label className="t-label" htmlFor="su-email">Institutional email <span className="t-req">*</span></label>
               <div className="t-input-icon"><Mail size={16} aria-hidden="true" /><input id="su-email" className="t-input" type="email" required value={form.email} onChange={set('email')} placeholder="e.g. juan.delacruz@ustp.edu.ph" /></div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="t-form-2col">
               <div className="t-field">
                 <label className="t-label" htmlFor="su-prog">Program</label>
                 <div className="t-input-icon"><BookOpen size={16} aria-hidden="true" />
@@ -79,4 +79,5 @@ const SignUp = () => {
 };
 
 export default SignUp;
+
 

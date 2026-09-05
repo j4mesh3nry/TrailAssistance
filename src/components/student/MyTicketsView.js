@@ -117,7 +117,7 @@ export const MyTicketsView = ({ onNavigate, focusTicket, clearFocus }) => {
               <LifecycleBar status={open.status} />
               <h3 className="t-section-title" style={{ marginTop: 14 }}>Concern statement</h3>
               <p style={{ fontSize: '0.84rem', color: 'var(--t-slate-700)', background: '#f8fafc', border: '1px solid var(--t-line)', borderRadius: 10, padding: 12 }}>{open.details}</p>
-              <dl style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: '6px 10px', marginTop: 12, fontSize: '0.78rem' }}>
+              <dl className="t-kv" style={{ marginTop: 12, fontSize: '0.78rem' }}>
                 <dt style={{ color: 'var(--t-slate-500)' }}>Decision needed</dt><dd><strong>{open.purposeOfVisit || '—'}</strong></dd>
                 <dt style={{ color: 'var(--t-slate-500)' }}>Slot</dt><dd>{open.preferredMeetingSlot ? new Date(open.preferredMeetingSlot).toLocaleString() : 'Pending'} • {open.meetingMode}</dd>
                 <dt style={{ color: 'var(--t-slate-500)' }}>SLA</dt><dd>{getSlaInfo(open).dueLabel}</dd>
@@ -182,3 +182,4 @@ export const MyTicketsView = ({ onNavigate, focusTicket, clearFocus }) => {
 };
 
 export default MyTicketsView;
+
