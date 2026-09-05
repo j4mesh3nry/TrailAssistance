@@ -1,124 +1,145 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { setDoc, doc, collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
+import { usePortal } from '../context/PortalContext';
+import { addStudent } from '../services/portalStorage';
+import { GraduationCap, Mail, Lock, User, BookOpen, ArrowRight } from 'lucide-react';
+import DemoRoleSwitcher from '../components/common/DemoRoleSwitcher';
+import ToastContainer from '../components/common/ToastContainer';
 import './styles/Signup.css';
-import next from '../assets/next.png';
-import emailIcon from '../assets/email.png';
-import padlock from '../assets/padlock.png';
-import nameIcon from '../assets/name.png';
-import roleIcon from '../assets/role.png';
-import logo from '../assets/ustplogo.png';
 
 const SignUp = () => {
-  const [role, setRole] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [program, setProgram] = useState('BS Computer Science');
+  const [yearOfStudy, setYearOfStudy] = useState('1st Year - Freshman');
   const [password, setPassword] = useState('');
+  const { showToast, reloadData, switchPersona } = usePortal();
   const navigate = useNavigate();
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = (e) => {
     e.preventDefault();
-    try {
-      // Count the number of documents in the students collection
-      const studentsCollection = collection(db, 'students');
-      const studentsSnapshot = await getDocs(studentsCollection);
-      const newStudentId = studentsSnapshot.size + 1;
+    if (!name || !email) return;
 
-      const userDoc = doc(db, 'students', email);
+    const studentObj = addStudent({
+      name,
+      email,
+      program,
+      yearOfStudy,
+      role: 'undergraduate'
+    });
 
-      await setDoc(userDoc, {
-        student_id: newStudentId,
-        role,
-        name,
-        email,
-        password,
-      });
-
-      alert('Sign up successful!');
-      setRole('');
-      setName('');
-      setEmail('');
-      setPassword('');
-      // Redirect to the login page
-      navigate('/login');
-    } catch (error) {
-      console.error('Error signing up: ', error);
-      alert('Sign up failed. Please try again.');
-    }
+    reloadData();
+    showToast(`Account registered for ${studentObj.name}!`, 'success');
+    switchPersona('student');
+    navigate('/dashboard');
   };
 
   return (
-    <div className="signup-page">
-      <header className="login-header">
-        <img src={logo} alt="USTP Logo" className="signup-logo" />
-      </header>
-      <form onSubmit={handleSignUp} className="signup-form">
-        <h2>Create your account</h2>
-        <hr/>
-        <div className="input-group">
-          <img src={nameIcon} alt="Name Icon" className="icon" />
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="none"
-          />
+    <div className="login-page-wrapper">
+      <ToastContainer />
+      <DemoRoleSwitcher />
+
+      <div className="login-card-box card-modern">
+        <div className="login-brand-header">
+          <div className="login-brand-icon">
+            <GraduationCap size={28} />
+          </div>
+          <h1 className="login-title">Create Student Profile</h1>
+          <p className="login-sub">Register for University Academic Assistance & Concern Tracking</p>
         </div>
-        <div className="input-group">
-          <img src={emailIcon} alt="Email Icon" className="icon" />
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="none"
-          />
+
+        <form onSubmit={handleSignUp} className="login-form-body">
+          <div className="form-field-group">
+            <label className="field-label">Full Name</label>
+            <div className="input-with-icon">
+              <User size={16} className="input-inner-icon" />
+              <input
+                type="text"
+                required
+                className="input-modern"
+                placeholder="e.g., Alex Morgan"
+                value={name}
+                onChange={e => setName(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="form-field-group">
+            <label className="field-label">University Email</label>
+            <div className="input-with-icon">
+              <Mail size={16} className="input-inner-icon" />
+              <input
+                type="email"
+                required
+                className="input-modern"
+                placeholder="e.g., alex.morgan@demo.edu"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="form-field-group">
+            <label className="field-label">Academic Degree Program</label>
+            <div className="input-with-icon">
+              <BookOpen size={16} className="input-inner-icon" />
+              <select
+                className="select-modern"
+                style={{ paddingLeft: '36px' }}
+                value={program}
+                onChange={e => setProgram(e.target.value)}
+              >
+                <option value="BS Computer Science">BS Computer Science</option>
+                <option value="BS Information Technology">BS Information Technology</option>
+                <option value="BS Cybersecurity">BS Cybersecurity</option>
+                <option value="BS Electrical Engineering">BS Electrical Engineering</option>
+                <option value="BS Architecture">BS Architecture</option>
+                <option value="MS Artificial Intelligence">MS Artificial Intelligence</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-field-group">
+            <label className="field-label">Current Academic Standing / Year</label>
+            <select
+              className="select-modern"
+              value={yearOfStudy}
+              onChange={e => setYearOfStudy(e.target.value)}
+            >
+              <option value="1st Year - Freshman">1st Year - Freshman</option>
+              <option value="2nd Year - Sophomore">2nd Year - Sophomore</option>
+              <option value="3rd Year - Junior">3rd Year - Junior</option>
+              <option value="4th Year - Senior">4th Year - Senior</option>
+              <option value="Graduate Scholar">Graduate Scholar</option>
+            </select>
+          </div>
+
+          <div className="form-field-group">
+            <label className="field-label">Create Password</label>
+            <div className="input-with-icon">
+              <Lock size={16} className="input-inner-icon" />
+              <input
+                type="password"
+                required
+                className="input-modern"
+                placeholder="••••••••"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <button type="submit" className="btn-primary login-action-btn">
+            <span>Complete Registration & Launch Portal</span>
+            <ArrowRight size={16} />
+          </button>
+        </form>
+
+        <div className="login-footer-row">
+          <span>Already registered?</span>
+          <Link to="/login" className="signup-link">Sign In</Link>
         </div>
-        <div className="input-group">
-          <img src={roleIcon} alt="Role Icon" className="icon" />
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            required
-          >
-            <option value="" disabled>Select Role</option>
-            <option value="undergraduate">Undergraduate</option>
-            <option value="graduate">Graduate</option>
-            <option value="alumni">Alumni</option>
-            <option value="exchange">Exchange</option>
-            <option value="non-degree">Non-Degree</option>
-            <option value="prospective">Prospective</option>
-            <option value="student-staff">Student Staff</option>
-          </select>
-        </div>
-        <div className="input-group">
-          <img src={padlock} alt="Padlock Icon" className="icon" />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="none"
-          />
-        </div>
-        <button type="submit">
-          Sign Up
-          <img src={next} alt="Next Icon" className="next-icon" />
-        </button>
-        <hr />
-        <p>Already have an account? <Link to="/login">Log in</Link></p>
-      </form>
+      </div>
     </div>
   );
 };

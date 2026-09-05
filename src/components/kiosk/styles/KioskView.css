@@ -1,0 +1,546 @@
+/* Kiosk Mode Fullscreen Styles */
+
+.kiosk-fullscreen-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e1b4b 100%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.kiosk-top-bar {
+  height: 72px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+.kiosk-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.kiosk-brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--indigo-600) 0%, var(--indigo-800) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+}
+
+.kiosk-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.kiosk-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.kiosk-top-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.kiosk-clock-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.kiosk-exit-btn {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.775rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.kiosk-exit-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  color: #ffffff;
+}
+
+/* Main Area */
+.kiosk-main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.kiosk-home-view {
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.kiosk-welcome-heading {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.kiosk-welcome-heading h2 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.kiosk-welcome-heading p {
+  font-size: 1.05rem;
+  color: #94a3b8;
+  max-width: 580px;
+  margin: 10px auto 0;
+  line-height: 1.5;
+}
+
+.kiosk-touch-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: 100%;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+  .kiosk-touch-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kiosk-touch-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-xl);
+  padding: 36px 30px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kiosk-touch-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.kiosk-touch-card.primary:hover {
+  border-color: rgba(99, 102, 241, 0.6);
+  box-shadow: 0 12px 30px rgba(79, 70, 229, 0.25);
+}
+
+.kiosk-touch-card.secondary:hover {
+  border-color: rgba(14, 165, 233, 0.6);
+  box-shadow: 0 12px 30px rgba(14, 165, 233, 0.25);
+}
+
+.kiosk-touch-icon-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--indigo-600) 0%, var(--indigo-800) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.35);
+}
+
+.kiosk-touch-icon-box.lookup {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  box-shadow: 0 8px 16px rgba(14, 165, 233, 0.35);
+}
+
+.kiosk-touch-card h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.kiosk-touch-card p {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin-bottom: 24px;
+}
+
+.touch-card-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #c7d2fe;
+}
+
+.kiosk-info-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 20px;
+  border-radius: var(--radius-full);
+  font-size: 0.825rem;
+  color: #cbd5e1;
+}
+
+.kiosk-info-banner strong {
+  color: #ffffff;
+}
+
+/* Screen 2 & 4 Container */
+.kiosk-screen-container {
+  max-width: 680px;
+  width: 100%;
+}
+
+.kiosk-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: all var(--transition-fast);
+}
+
+.kiosk-back-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.kiosk-form-card {
+  padding: 36px;
+  background: #ffffff;
+  color: var(--slate-800);
+}
+
+.kiosk-form-header {
+  margin-bottom: 24px;
+}
+
+.kiosk-form-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+.kiosk-form-header p {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  margin-top: 4px;
+}
+
+.kiosk-touch-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.kiosk-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .kiosk-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kiosk-input {
+  padding: 12px 16px;
+  font-size: 0.95rem;
+}
+
+.kiosk-category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.kiosk-cat-pill {
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--slate-200);
+  background: var(--slate-50);
+  color: var(--slate-700);
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.kiosk-cat-pill.active {
+  background: var(--indigo-600);
+  border-color: var(--indigo-600);
+  color: #ffffff;
+}
+
+.kiosk-submit-btn {
+  padding: 14px;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+/* Thermal Printed Slip */
+.thermal-slip-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.thermal-slip {
+  width: 320px;
+  background: #ffffff;
+  color: #1e293b;
+  padding: 24px 20px;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  font-family: 'Courier New', Courier, monospace;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.slip-top-border {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(45deg, #e2e8f0, #e2e8f0 10px, #ffffff 10px, #ffffff 20px);
+}
+
+.slip-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.slip-header h3 {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.slip-header p {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin: 2px 0 6px;
+}
+
+.slip-divider-line {
+  color: #94a3b8;
+  font-size: 0.7rem;
+  display: block;
+}
+
+.slip-queue-number-block {
+  text-align: center;
+  padding: 12px 0;
+  border-top: 1px dashed #cbd5e1;
+  border-bottom: 1px dashed #cbd5e1;
+  margin-bottom: 16px;
+}
+
+.slip-queue-lbl {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.05em;
+}
+
+.slip-queue-num {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.1;
+  display: block;
+}
+
+.slip-ticket-ref {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4f46e5;
+}
+
+.slip-details-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.775rem;
+  margin-bottom: 16px;
+}
+
+.slip-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.slip-row.highlight {
+  background: #f0fdf4;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: #15803d;
+}
+
+.slip-qr-box {
+  text-align: center;
+  padding: 12px 0;
+  border-top: 1px dashed #cbd5e1;
+  margin-bottom: 12px;
+}
+
+.slip-qr-icon {
+  margin: 0 auto;
+  color: #0f172a;
+}
+
+.slip-qr-text {
+  display: block;
+  font-size: 0.65rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.slip-footer {
+  text-align: center;
+  font-size: 0.65rem;
+  color: #64748b;
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 10px;
+}
+
+.slip-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.slip-btn {
+  padding: 12px 20px;
+}
+
+/* Lookup view */
+.kiosk-search-form {
+  margin-bottom: 24px;
+}
+
+.kiosk-search-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.kiosk-lookup-submit-btn {
+  padding: 10px 20px;
+}
+
+.kiosk-lookup-result-card {
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  background: var(--slate-50);
+}
+
+.lookup-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.lookup-result-id {
+  font-family: monospace;
+  font-weight: 800;
+  color: var(--indigo-700);
+  font-size: 0.8rem;
+}
+
+.lookup-result-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  margin: 2px 0;
+}
+
+.lookup-result-student {
+  font-size: 0.775rem;
+  color: var(--slate-500);
+}
+
+.lookup-lifecycle-box {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+}
+
+.lookup-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.lookup-meta-cell {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.lookup-meta-cell span {
+  font-size: 0.7rem;
+  color: var(--slate-400);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.lookup-meta-cell strong {
+  font-size: 0.8125rem;
+  color: var(--slate-800);
+  margin-top: 2px;
+}

@@ -1,136 +1,166 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { usePortal } from '../context/PortalContext';
+import { 
+  GraduationCap, 
+  ShieldCheck, 
+  Mail, 
+  Lock, 
+  ArrowRight, 
+  Sparkles
+} from 'lucide-react';
+import DemoRoleSwitcher from '../components/common/DemoRoleSwitcher';
+import ToastContainer from '../components/common/ToastContainer';
 import './styles/Login.css';
-import logo from '../assets/ustplogo.png';
-import user from '../assets/user.png';
-import padlock from '../assets/padlock.png';
-import next from '../assets/next.png';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
-import { useAuth } from './Auth/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [activeTab, setActiveTab] = useState('student'); // 'student' | 'admin'
+  const { switchPersona } = usePortal();
   const navigate = useNavigate();
-  const { setCurrentUser } = useAuth();
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-    try {
-      const q = query(collection(db, 'students'), where('email', '==', email));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        alert('Login failed. Email not found.');
-        return;
-      }
-
-      let loginSuccessful = false;
-      let userData = null;
-      querySnapshot.forEach((doc) => {
-        if (doc.data().password === password) {
-          loginSuccessful = true;
-          userData = { ...doc.data(), uid: doc.id };
-        }
-      });
-
-      if (loginSuccessful) {
-        setCurrentUser(userData);
-        navigate('/dashboard');
-      } else {
-        alert('Login failed. Incorrect password.');
-      }
-    } catch (error) {
-      console.warn('Firebase login failed, falling back to local session: ', error);
-      setCurrentUser({
-        name: email.split('@')[0] || 'Demo Student',
-        email: email || 'student@demo.com',
-        studentId: '2024-00123',
-        course: 'BS Computer Science',
-        trailStatus: 'Active - Trail A'
-      });
+    if (activeTab === 'admin' || email.includes('dean') || email.includes('admin') || email.includes('vance')) {
+      switchPersona('admin');
+      navigate('/admin');
+    } else {
+      switchPersona('student');
       navigate('/dashboard');
     }
   };
 
   const handleDemoStudent = () => {
-    setCurrentUser({
-      name: 'Alex Morgan',
-      email: 'alex.morgan@demo.edu',
-      studentId: '2024-10492',
-      course: 'BS Information Technology',
-      trailStatus: 'On Trail - Checkpoint 2'
-    });
+    switchPersona('student');
     navigate('/dashboard');
   };
 
   const handleDemoAdmin = () => {
-    setCurrentUser({
-      name: 'Ranger Chief Johnson',
-      email: 'admin@trailassistance.gov',
-      role: 'admin'
-    });
+    switchPersona('admin');
     navigate('/admin');
   };
 
+  const handleDemoKiosk = () => {
+    switchPersona('kiosk');
+    navigate('/kiosk');
+  };
+
   return (
-    <div className="login-page">
-      <header className="login-header">
-        <img src={logo} alt="USTP Logo" className="login-logo" />
-      </header>
-      <main className="login-content">
-        <h1 className="login-h1">Login to your account</h1>
-        <hr />
-        <form onSubmit={handleLogin} className="login-form">
-          <div className="login-input-group">
-            <img src={user} alt="User Icon" className="login-icon" />
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="none"
-              className="login-input"
-            />
+    <div className="login-page-wrapper">
+      <ToastContainer />
+      <DemoRoleSwitcher />
+
+      <div className="login-card-box card-modern">
+        {/* Header Branding */}
+        <div className="login-brand-header">
+          <div className="login-brand-icon">
+            <GraduationCap size={28} />
           </div>
-          <div className="login-input-group">
-            <img src={padlock} alt="Padlock Icon" className="login-icon" />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="none"
-              className="login-input"
-            />
+          <h1 className="login-title">TrailAssistance Portal</h1>
+          <p className="login-sub">University Academic Assistance & Concern Tracking</p>
+        </div>
+
+        {/* Role Tabs */}
+        <div className="login-role-tabs">
+          <button
+            type="button"
+            className={`login-tab-btn ${activeTab === 'student' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('student');
+              setEmail('alex.morgan@demo.edu');
+            }}
+          >
+            <GraduationCap size={16} />
+            <span>Student Portal</span>
+          </button>
+          <button
+            type="button"
+            className={`login-tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('admin');
+              setEmail('sarah.vance@university.edu');
+            }}
+          >
+            <ShieldCheck size={16} />
+            <span>Dean's Office</span>
+          </button>
+        </div>
+
+        {/* 1-Click Recruiter Quick Access Bar */}
+        <div className="recruiter-quick-pill-banner">
+          <div className="quick-pill-header">
+            <Sparkles size={13} />
+            <span>Recruiter 1-Click Demo Login</span>
           </div>
-          <div className="login-form-container">
-            <button type="submit" className="login-btn">
-              Login
-              <img src={next} alt="Next Icon" />
+          <div className="quick-pill-actions">
+            <button
+              type="button"
+              className="quick-demo-btn student"
+              onClick={handleDemoStudent}
+            >
+              <span>Alex Morgan (Student)</span>
             </button>
+            <button
+              type="button"
+              className="quick-demo-btn admin"
+              onClick={handleDemoAdmin}
+            >
+              <span>Dr. Vance (Dean)</span>
+            </button>
+            <button
+              type="button"
+              className="quick-demo-btn kiosk"
+              onClick={handleDemoKiosk}
+            >
+              <span>Kiosk Mode</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Standard Form */}
+        <form onSubmit={handleLogin} className="login-form-body">
+          <div className="form-field-group">
+            <label className="field-label">Institutional Email</label>
+            <div className="input-with-icon">
+              <Mail size={16} className="input-inner-icon" />
+              <input
+                type="email"
+                required
+                className="input-modern"
+                placeholder={activeTab === 'admin' ? 'dean@university.edu' : 'student@demo.edu'}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+              />
+            </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', margin: '14px 0', flexWrap: 'wrap' }}>
-            <button type="button" onClick={handleDemoStudent} style={{ flex: 1, padding: '8px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
-              👤 Quick Student Demo
-            </button>
-            <button type="button" onClick={handleDemoAdmin} style={{ flex: 1, padding: '8px', background: '#059669', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
-              🛡️ Quick Admin Demo
-            </button>
+          <div className="form-field-group">
+            <label className="field-label">Password</label>
+            <div className="input-with-icon">
+              <Lock size={16} className="input-inner-icon" />
+              <input
+                type="password"
+                required
+                className="input-modern"
+                placeholder="••••••••"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+            </div>
           </div>
 
-          <hr />
-          <p>Don't have an account? <Link to="/sign-up" className="login-link">Sign up</Link></p>
+          <button type="submit" className="btn-primary login-action-btn">
+            <span>Sign in to {activeTab === 'admin' ? "Dean's Console" : 'Student Portal'}</span>
+            <ArrowRight size={16} />
+          </button>
         </form>
-      </main>
+
+        <div className="login-footer-row">
+          <span>Need to create a new profile?</span>
+          <Link to="/sign-up" className="signup-link">Register Account</Link>
+        </div>
+      </div>
     </div>
   );
 };

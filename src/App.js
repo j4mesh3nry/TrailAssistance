@@ -5,26 +5,32 @@ import Login from './Screens/Login';
 import Landing from './Screens/Landing';
 import Dashboard from './Screens/Dashboard';
 import Admin from './Screens/Admin';
+import Kiosk from './Screens/Kiosk';
+import { PortalProvider } from './context/PortalContext';
 import { AuthProvider } from './Screens/Auth/AuthContext';
-import './App.css'; // Import the CSS file
+import './styles/designSystem.css';
+import './App.css';
+
 function App() {
-
-
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<Navigate to="/landing" />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/landing" element={<Landing />} />
-            <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin" element={<Admin />} />
-          </Routes>
-        </div>
-      </Router>
-    </AuthProvider>
+    <PortalProvider>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<Navigate to="/landing" replace />} />
+              <Route path="/landing" element={<Landing />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/sign-up" element={<SignUp />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/kiosk" element={<Kiosk />} />
+              <Route path="*" element={<Navigate to="/landing" replace />} />
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
+    </PortalProvider>
   );
 }
 

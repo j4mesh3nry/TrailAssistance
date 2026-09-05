@@ -1,138 +1,186 @@
-.login-content {
-    max-width: 300px;
-    margin: 10px auto 0;
-    padding: 20px;
-    background-color: rgba(0, 0, 0, 0.8);
-    border-radius: 10px;
-    text-align: center;
-    color: white;
-  }
-  
-  .login-input-group {
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: white;
-  }
-  
-  .login-icon {
-    width: 20px;
-    margin: 5px;
-  }
-  
-  .login-input {
-    flex: 1;
-    height: 40px;
-    padding: 5px;
-    border: none;
-    border-radius: 5px;
-    box-sizing: border-box;
-  }
-  
-  .login-input::placeholder {
-    color: grey; /* Grey placeholder text color */
-  }
-  
-  .login-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-  }
-  
-  .login-form-container {
-    display: flex;
-    justify-content: center;
-  }
-  
-  .login-page {
-    position: relative;
-    height: 100vh;
-    display: block;
-    overflow: hidden; /* Ensure content doesn't overflow */
-  }
-  
-  .login-page::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('../../assets/ustp.jpg'); /* Set the background image */
-    background-size: cover;
-    background-position: center;
-    opacity: 0.8; /* Desired opacity */
-    z-index: -1; /* Place it behind the content */
-  }
-  
-  .login-header {
-    text-align: center;
-    padding: 20px;
-  }
-  
-  .login-logo {
-    margin-top: 30px;
-    width: 125px;
-  }
-  
-  .login-h1 {
-    margin-bottom: 10px;
-    color: white;
-    font-size: 24px;
-  }
-  
-  .login-content hr {
-    margin: 20px 0;
-    border-color: white;
-  }
-  
-  .login-form {
-    display: block;
-  }
-  
-  .login-btn {
-    width: 40%;
-    padding: 8px;
-    background-color: #007bff;
-    font-weight: bold;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .login-btn img {
-    margin-left: 10px;
-    width: 20px;
-    height: 20px;
-  }
-  
-  .login-btn:hover {
-    background-color: #0056b3;
-  }
-  
-  .login-form hr {
-    width: 100%;
-    border: 0;
-    border-top: 1px solid #ccc;
-    margin: 20px 0;
-  }
-  
-  .login-form p {
-    color: white;
-  }
-  
-  .login-form a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .login-form a:hover {
-    text-decoration: underline;
-  }
+/* Login Modern Styles */
+
+.login-page-wrapper {
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 60%), #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card-box {
+  width: 100%;
+  max-width: 440px;
+  padding: 36px 32px;
+  background: #ffffff;
+  border-radius: var(--radius-xl);
+}
+
+.login-brand-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-brand-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--indigo-600) 0%, var(--indigo-800) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  margin: 0 auto 14px;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+}
+
+.login-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+.login-sub {
+  font-size: 0.8rem;
+  color: var(--slate-500);
+  margin-top: 4px;
+}
+
+/* Role Tabs */
+.login-role-tabs {
+  display: flex;
+  background: var(--slate-100);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  gap: 4px;
+}
+
+.login-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--slate-600);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.login-tab-btn.active {
+  background: #ffffff;
+  color: var(--indigo-700);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Recruiter Quick Access */
+.recruiter-quick-pill-banner {
+  background: var(--indigo-50);
+  border: 1px dashed var(--indigo-300);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 20px;
+}
+
+.quick-pill-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--indigo-700);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.quick-pill-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.quick-demo-btn {
+  border: 1px solid var(--indigo-200);
+  background: #ffffff;
+  padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--indigo-700);
+  text-align: center;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quick-demo-btn:hover {
+  background: var(--indigo-600);
+  color: #ffffff;
+  border-color: var(--indigo-600);
+}
+
+.quick-demo-btn.admin {
+  color: var(--emerald-800);
+  border-color: var(--emerald-300);
+}
+
+.quick-demo-btn.admin:hover {
+  background: var(--emerald-600);
+  color: #ffffff;
+  border-color: var(--emerald-600);
+}
+
+.quick-demo-btn.kiosk {
+  color: var(--sky-800);
+  border-color: var(--sky-300);
+}
+
+.quick-demo-btn.kiosk:hover {
+  background: var(--sky-600);
+  color: #ffffff;
+  border-color: var(--sky-600);
+}
+
+/* Form */
+.login-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-action-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
+.login-footer-row {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--slate-100);
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--slate-500);
+}
+
+.signup-link {
+  font-weight: 700;
+  color: var(--indigo-600);
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+}

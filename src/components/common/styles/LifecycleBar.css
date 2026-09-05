@@ -1,0 +1,167 @@
+.lifecycle-wrapper {
+  width: 100%;
+  padding: 16px 0 10px;
+}
+
+.lifecycle-wrapper.compact {
+  padding: 8px 0 4px;
+}
+
+.lifecycle-track {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 1;
+}
+
+/* Background Gray Line */
+.lifecycle-track::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  right: 18px;
+  height: 3px;
+  background-color: var(--slate-200);
+  z-index: 1;
+}
+
+.lifecycle-wrapper.compact .lifecycle-track::before {
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+}
+
+/* Active Color Progress Line */
+.lifecycle-progress-line {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--indigo-500) 0%, var(--emerald-500) 100%);
+  z-index: 2;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: calc(100% - 36px);
+}
+
+.lifecycle-wrapper.compact .lifecycle-progress-line {
+  top: 12px;
+  left: 12px;
+  height: 2px;
+  max-width: calc(100% - 24px);
+}
+
+.lifecycle-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 3;
+  text-align: center;
+  min-width: 80px;
+}
+
+.lifecycle-wrapper.compact .lifecycle-step {
+  min-width: 48px;
+}
+
+.step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border: 2px solid var(--slate-300);
+  color: var(--slate-400);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.lifecycle-wrapper.compact .step-circle {
+  width: 24px;
+  height: 24px;
+  border-width: 1.5px;
+}
+
+/* Completed Step */
+.lifecycle-step.completed .step-circle {
+  background-color: var(--emerald-500);
+  border-color: var(--emerald-500);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Current Step */
+.lifecycle-step.current .step-circle {
+  background-color: var(--indigo-600);
+  border-color: var(--indigo-600);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+}
+
+.step-pulse-ring {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--indigo-500);
+  animation: pulse-ring 1.8s infinite cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* Upcoming Step */
+.lifecycle-step.upcoming .step-circle {
+  background-color: #ffffff;
+  border-color: var(--slate-300);
+  color: var(--slate-400);
+}
+
+.step-label-group {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.step-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--slate-700);
+}
+
+.lifecycle-step.current .step-label {
+  color: var(--indigo-700);
+  font-weight: 700;
+}
+
+.lifecycle-step.completed .step-label {
+  color: var(--slate-800);
+}
+
+.step-desc {
+  font-size: 0.7rem;
+  color: var(--slate-500);
+  margin-top: 2px;
+}
+
+@media (max-width: 640px) {
+  .step-desc {
+    display: none;
+  }
+  .step-label {
+    font-size: 0.72rem;
+  }
+  .lifecycle-step {
+    min-width: 60px;
+  }
+}

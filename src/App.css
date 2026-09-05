@@ -1,103 +1,28 @@
+/* App Root Styles - Modern Higher-Ed Layout */
+
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  background-color: var(--slate-50);
+  color: var(--slate-800);
 }
 
-.App-link {
-  color: #61dafb;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+::-webkit-scrollbar-track {
+  background: var(--slate-100);
 }
 
-@media (max-width: 768px) {
-  .App {
-    display: none;
-  }
-  
-  .mobile-warning {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    text-align: center;
-    font-size: 24px;
-    color: #333;
-    background-color: #f0f0f0;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    margin: 20px;
-  }
-  
-  .thanks-image {
-    width: 80px;
-    height: auto;
-    margin-bottom: 10px;
-  }
-  
-  .mobile-warning p {
-    margin: 0;
-    padding: 0;
-    font-size: 0.8em;
-    line-height: 1.4;
-  }
+::-webkit-scrollbar-thumb {
+  background: var(--slate-300);
+  border-radius: var(--radius-full);
 }
 
-@media (max-width: 480px) {
-  .mobile-warning {
-    font-size: 20px;
-    padding: 15px;
-  }
-  
-  .thanks-image {
-    width: 60px;
-  }
-  
-  .mobile-warning p {
-    font-size: 0.7em;
-  }
-}
-
-@media (max-width: 320px) {
-  .mobile-warning {
-    font-size: 18px;
-    padding: 10px;
-  }
-  
-  .thanks-image {
-    width: 50px;
-  }
-  
-  .mobile-warning p {
-    font-size: 0.6em;
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--slate-400);
 }
