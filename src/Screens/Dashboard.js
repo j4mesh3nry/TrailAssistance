@@ -1,109 +1,86 @@
 import React, { useState } from 'react';
-import Navbar from '../components/common/Navbar';
+import { LayoutDashboard, FilePlus2, Inbox, CalendarClock, User, Star, RotateCcw } from 'lucide-react';
 import Sidebar from '../components/common/Sidebar';
+import Navbar from '../components/common/Navbar';
+import CommandPalette from '../components/common/CommandPalette';
 import DemoRoleSwitcher from '../components/common/DemoRoleSwitcher';
 import ToastContainer from '../components/common/ToastContainer';
 import OverviewView from '../components/student/OverviewView';
 import NewTicketForm from '../components/student/NewTicketForm';
 import MyTicketsView from '../components/student/MyTicketsView';
+import AppointmentsView from '../components/student/AppointmentsView';
 import StudentProfileView from '../components/student/StudentProfileView';
 import WebsiteFeedbackView from '../components/student/WebsiteFeedbackView';
-import { LayoutDashboard, PlusCircle, Ticket, User, Star } from 'lucide-react';
+import { usePortal } from '../context/PortalContext';
+
+const TITLES = {
+  home: ['Student workspace', 'Home overview'],
+  new: ['Student workspace', 'New request wizard'],
+  requests: ['Student workspace', 'My requests & tracking'],
+  appointments: ['Student workspace', 'Appointments'],
+  profile: ['Student workspace', 'Profile & clearance'],
+  feedback: ['Student workspace', 'Rate your service'],
+};
 
 export const Dashboard = () => {
-  const [currentView, setCurrentView] = useState('overview');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [view, setView] = useState('home');
+  const [focusTicket, setFocusTicket] = useState(null);
+  const { handleResetDemoData } = usePortal();
 
-  const getPageTitle = () => {
-    switch (currentView) {
-      case 'overview': return 'Student Overview';
-      case 'newTicket': return 'File Academic Concern';
-      case 'myTickets': return 'My Concerns & Tickets';
-      case 'profile': return 'Student Profile';
-      case 'feedback': return 'Service Feedback';
-      default: return 'Student Portal';
+  const openTicket = (ticketNumber) => { setFocusTicket(ticketNumber); setView('requests'); };
+
+  const sections = [
+    {
+      label: 'Workspace', items: [
+        { key: 'home', label: 'Home', icon: LayoutDashboard },
+        { key: 'new', label: 'New request', icon: FilePlus2 },
+        { key: 'requests', label: 'My requests', icon: Inbox, countKey: 'studentActive' },
+        { key: 'appointments', label: 'Appointments', icon: CalendarClock },
+      ]
+    },
+    {
+      label: 'Account', items: [
+        { key: 'profile', label: 'Profile & record', icon: User },
+        { key: 'feedback', label: 'Rate service', icon: Star },
+      ]
     }
-  };
+  ];
+
+  const [crumb, title] = TITLES[view] || TITLES.home;
 
   return (
-    <div className="app-portal-layout">
+    <div className="t-shell">
+      <a className="t-skip" href="#student-main">Skip to content</a>
       <ToastContainer />
       <DemoRoleSwitcher />
-
-      {/* Sidebar */}
+      <CommandPalette onSelectTicket={openTicket} />
       <Sidebar
-        currentView={currentView}
-        onViewChange={setCurrentView}
-        collapsed={sidebarCollapsed}
-        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-        mobileOpen={mobileSidebarOpen}
-        onCloseMobile={() => setMobileSidebarOpen(false)}
-        mode="student"
+        title="Student workspace" subtitle="USTP • Student OS"
+        sections={sections} currentView={view} onViewChange={setView}
+        footer={<button type="button" className="t-nav-btn" onClick={handleResetDemoData}><RotateCcw size={16} aria-hidden="true" /><span>Reset demo</span></button>}
       />
-
-      {/* Main Content Area */}
-      <div className="app-portal-main">
-        <Navbar
-          pageTitle={getPageTitle()}
-          onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-        />
-
-        <main style={{ flex: 1, paddingBottom: '80px' }}>
-          {currentView === 'overview' && (
-            <OverviewView onNavigate={setCurrentView} />
-          )}
-          {currentView === 'newTicket' && (
-            <NewTicketForm onNavigate={setCurrentView} />
-          )}
-          {currentView === 'myTickets' && (
-            <MyTicketsView onNavigate={setCurrentView} />
-          )}
-          {currentView === 'profile' && (
-            <StudentProfileView />
-          )}
-          {currentView === 'feedback' && (
-            <WebsiteFeedbackView />
-          )}
+      <div className="t-main">
+        <Navbar crumb={crumb} pageTitle={title} onOpenQueue={openTicket} />
+        <main className="t-page" id="student-main">
+          {view === 'home' && <OverviewView onNavigate={setView} onOpenTicket={openTicket} />}
+          {view === 'new' && <NewTicketForm onNavigate={setView} onCreated={openTicket} />}
+          {view === 'requests' && <MyTicketsView onNavigate={setView} focusTicket={focusTicket} clearFocus={() => setFocusTicket(null)} />}
+          {view === 'appointments' && <AppointmentsView onNavigate={setView} />}
+          {view === 'profile' && <StudentProfileView />}
+          {view === 'feedback' && <WebsiteFeedbackView />}
         </main>
-
-        {/* Native Mobile Bottom Navigation Bar */}
-        <nav className="mobile-bottom-nav">
-          <button 
-            className={`mobile-nav-tab ${currentView === 'overview' ? 'active' : ''}`}
-            onClick={() => setCurrentView('overview')}
-          >
-            <LayoutDashboard size={18} />
-            <span>Overview</span>
-          </button>
-          <button 
-            className={`mobile-nav-tab ${currentView === 'newTicket' ? 'active' : ''}`}
-            onClick={() => setCurrentView('newTicket')}
-          >
-            <PlusCircle size={18} />
-            <span>File</span>
-          </button>
-          <button 
-            className={`mobile-nav-tab ${currentView === 'myTickets' ? 'active' : ''}`}
-            onClick={() => setCurrentView('myTickets')}
-          >
-            <Ticket size={18} />
-            <span>Concerns</span>
-          </button>
-          <button 
-            className={`mobile-nav-tab ${currentView === 'profile' ? 'active' : ''}`}
-            onClick={() => setCurrentView('profile')}
-          >
-            <User size={18} />
-            <span>Record</span>
-          </button>
-          <button 
-            className={`mobile-nav-tab ${currentView === 'feedback' ? 'active' : ''}`}
-            onClick={() => setCurrentView('feedback')}
-          >
-            <Star size={18} />
-            <span>Rating</span>
-          </button>
+        <nav className="t-bottomnav" aria-label="Student">
+          {[
+            { key: 'home', label: 'Home', Icon: LayoutDashboard },
+            { key: 'new', label: 'New', Icon: FilePlus2 },
+            { key: 'requests', label: 'Requests', Icon: Inbox },
+            { key: 'appointments', label: 'Visits', Icon: CalendarClock },
+            { key: 'profile', label: 'Profile', Icon: User },
+          ].map((b) => (
+            <button key={b.key} type="button" className={view === b.key ? 'active' : ''} onClick={() => setView(b.key)} aria-current={view === b.key ? 'page' : undefined}>
+              <b.Icon size={20} aria-hidden="true" /><span>{b.label}</span>
+            </button>
+          ))}
         </nav>
       </div>
     </div>

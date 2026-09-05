@@ -1,28 +1,6 @@
-/* App Root Styles - Modern Higher-Ed Layout */
-
-.App {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--slate-50);
-  color: var(--slate-800);
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--slate-100);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--slate-300);
-  border-radius: var(--radius-full);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--slate-400);
-}
+/* TrailAssistance 2.0 shell — trail2.css owns the system. Keep root lean. */
+.App { min-height: 100vh; display: flex; flex-direction: column; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #eef2f7; }
+::-webkit-scrollbar-thumb { background: #b6c2d4; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #0f2942; }

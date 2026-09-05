@@ -1,4 +1,4 @@
-# TrailAssistance &bull; Enterprise University Academic Assistance & Concern Portal
+# TrailAssistance 2.0 &bull; USTP Academic Assistance OS
 
 [![Vercel Deployment](https://img.shields.io/badge/Deployment-Vercel%20Production-black?logo=vercel)](https://trail-assistance.vercel.app)
 [![React 18](https://img.shields.io/badge/Frontend-React%2018-blue?logo=react)](https://react.dev)
@@ -6,7 +6,9 @@
 [![Lucide Icons](https://img.shields.io/badge/Design%20System-Lucide%20Icons-indigo)](https://lucide.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
 
-An enterprise-grade **Higher-Education Academic Assistance & Student Concern Lifecycle Management Portal** engineered as a flagship full-stack portfolio piece. Transforms traditional bureaucratic paper queues into a transparent, real-time tracking experience connecting students, academic advisors, department heads, and college deans.
+A complete overhaul of the school project into a flagship **academic assistance OS**: file once, track like a flight, leave with a signature. Students file advising/clearance/aid requests with live SLA clocks; the Dean triages breach-first with templated memos and CSV ledgers; the lobby kiosk checks in walk-ins and prints thermal slips. **Zero-config showcase — fully interactive on static Vercel hosting, no database.**
+
+> **Reviewer fast-path (no passwords):** open `/landing` → bottom-right demo switcher → **Student (Alex)** for filing/tracking, **Dean (Dr. Vance)** for triage/signing, **Kiosk** for check-in/slip. Press **Ctrl K** anywhere for global search. Bottom-right **Reset** restores pristine demo data.
 
 ---
 
@@ -59,9 +61,10 @@ An enterprise-grade **Higher-Education Academic Assistance & Student Concern Lif
 - **Core Framework**: React 18.3
 - **Routing & History**: React Router DOM v7
 - **Icons**: Lucide React
-- **Persistence Layer**: LocalStorage Mock Repository + Firebase Firestore fallback
+- **Persistence Layer**: Zero-Config LocalStorage Mock Repository (no backend required; Firebase adapter is opt-in only — see `src/firebaseConfig.js`)
 - **State Management**: React Context API (`PortalContext`, `AuthContext`)
-- **Styling Architecture**: Custom CSS Design System with CSS Variables, Flexbox/Grid, and Frosted Glassmorphism
+- **Styling Architecture**: “Trailblazer” Custom CSS Design System — USTP Navy `#0F2942` + Trail Gold `#F2A900`, Inter, CSS Variables, Flexbox/Grid, Frosted Glassmorphism, campus photography (`src/assets/ustp.jpg`)
+- **Resilience**: ErrorBoundary + ScrollToTop, keyboard-accessible filing wizard, live ticket-driven notifications, print-ready kiosk slips
 
 ---
 

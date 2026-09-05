@@ -1,204 +1,118 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { usePortal } from '../../context/PortalContext';
-import { 
-  Bell, 
-  ChevronDown, 
-  LogOut, 
-  Menu, 
-  ShieldCheck, 
-  GraduationCap, 
-  Monitor, 
-  Clock, 
-  RotateCcw
-} from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Menu, Search, GraduationCap, ShieldCheck, MonitorSmartphone, RotateCcw, Command } from 'lucide-react';
 import ustplogo from '../../assets/ustplogo.png';
-import './styles/Navbar.css';
 
-export const Navbar = ({ pageTitle = 'Dashboard', onToggleSidebar }) => {
-  const { activeUser, personaType, switchPersona, handleResetDemoData } = usePortal();
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [currentTime, setCurrentTime] = useState('');
-
+export const Navbar = ({ crumb = 'Workspace', pageTitle = 'Overview', onToggleSidebar, onOpenQueue }) => {
+  const { activeUser, personaType, switchPersona, handleResetDemoData, notifications, setCommandOpen } = usePortal();
+  const [openNotif, setOpenNotif] = useState(false);
+  const [openUser, setOpenUser] = useState(false);
+  const [time, setTime] = useState('');
   const notifRef = useRef(null);
-  const userMenuRef = useRef(null);
+  const userRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setCurrentTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 30000);
-    return () => clearInterval(interval);
+    const tick = () => setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    tick();
+    const id = setInterval(tick, 30000);
+    return () => clearInterval(id);
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) {
-        setShowNotifications(false);
-      }
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
-        setShowUserMenu(false);
-      }
+    const onDown = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setOpenNotif(false);
+      if (userRef.current && !userRef.current.contains(e.target)) setOpenUser(false);
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
   }, []);
 
-  const notifications = [
-    {
-      id: 1,
-      title: 'Prerequisite Waiver In Review',
-      detail: 'Dr. Sarah Vance reviewed your transcript for CS-499.',
-      time: '15m ago',
-      unread: true
-    },
-    {
-      id: 2,
-      title: 'Library Hold Released',
-      detail: 'Clearance desk verified textbook return #LIB-REC-9921.',
-      time: '2h ago',
-      unread: false
-    }
-  ];
+  const unread = notifications.filter((n) => n.unread).length;
+
+  const goPersona = (role) => {
+    switchPersona(role);
+    setOpenUser(false);
+    navigate(role === 'admin' ? '/admin' : role === 'kiosk' ? '/kiosk' : '/dashboard');
+  };
 
   return (
-    <header className="navbar-container">
-      <div className="navbar-left">
-        <button 
-          className="navbar-mobile-menu-btn" 
-          onClick={onToggleSidebar}
-          aria-label="Toggle navigation menu"
-        >
-          <Menu size={18} />
+    <header className="t-topbar">
+      {onToggleSidebar && (
+        <button type="button" className="t-icon-btn" onClick={onToggleSidebar} aria-label="Open navigation" style={{ display: 'none' }}>
+          <Menu size={18} aria-hidden="true" />
         </button>
-
-        <div className="navbar-brand-badge">
-          <img src={ustplogo} alt="USTP Logo" className="navbar-ustp-img" />
-          <span className="navbar-current-page">{pageTitle}</span>
-        </div>
+      )}
+      <img src={ustplogo} alt="" aria-hidden="true" style={{ width: 30, height: 30, objectFit: 'contain' }} />
+      <div>
+        <div className="t-crumb">{crumb} • {time} PHT</div>
+        <div className="t-page-title">{pageTitle}</div>
       </div>
-
-      <div className="navbar-right">
-        <div className="navbar-clock-pill">
-          <Clock size={13} />
-          <span>{currentTime} &bull; USTP</span>
-        </div>
-
-        {/* Notifications */}
-        <div className="navbar-item-wrapper" ref={notifRef}>
-          <button 
-            className={`navbar-icon-btn ${showNotifications ? 'active' : ''}`}
-            onClick={() => setShowNotifications(!showNotifications)}
-            aria-label="Notifications"
-          >
-            <Bell size={17} />
-            <span className="navbar-notif-ping" />
+      <div className="t-top-actions">
+        <button type="button" className="t-search-trigger" onClick={() => setCommandOpen(true)} aria-label="Search (Ctrl K)">
+          <Search size={15} aria-hidden="true" />
+          <span>Search tickets, students…</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+        <div style={{ position: 'relative' }} ref={notifRef}>
+          <button type="button" className="t-icon-btn" onClick={() => setOpenNotif((v) => !v)} aria-label={`Notifications, ${unread} unread`} aria-expanded={openNotif}>
+            <Bell size={18} aria-hidden="true" />
+            {unread > 0 && <span className="t-ping" aria-hidden="true" />}
           </button>
-
-          {showNotifications && (
-            <div className="navbar-dropdown notif-dropdown">
-              <div className="notif-header">
-                <h3>Notifications</h3>
-                <span className="notif-count-badge">1 New</span>
+          {openNotif && (
+            <div className="t-card" role="dialog" aria-label="Notifications" style={{ position: 'absolute', right: 0, top: 48, width: 330, zIndex: 120, overflow: 'hidden' }}>
+              <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--t-line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <strong style={{ fontSize: '0.84rem' }}>Live updates</strong>
+                <span className="t-badge t-status-scheduled">{unread} new</span>
               </div>
-              <div className="notif-list">
-                {notifications.map(n => (
-                  <div key={n.id} className={`notif-card ${n.unread ? 'unread' : ''}`}>
-                    <div className="notif-content">
-                      <div className="notif-title-row">
-                        <span className="notif-title">{n.title}</span>
-                        <span className="notif-time">{n.time}</span>
-                      </div>
-                      <p className="notif-detail">{n.detail}</p>
-                    </div>
-                  </div>
+              <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+                {notifications.length === 0 && <p style={{ padding: 16, fontSize: '0.8rem', color: 'var(--t-slate-500)' }}>Queue is clear. You&apos;re all caught up.</p>}
+                {notifications.map((n) => (
+                  <button key={n.id} type="button" onClick={() => { setOpenNotif(false); if (onOpenQueue) onOpenQueue(n.ticketNumber); }} style={{ display: 'block', width: '100%', textAlign: 'left', background: n.unread ? '#f8fafc' : '#fff', border: 'none', borderBottom: '1px solid var(--t-line-2)', padding: '11px 14px', cursor: 'pointer' }}>
+                    <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                      <strong style={{ fontSize: '0.76rem' }}>{n.title}</strong>
+                      <span style={{ fontSize: '0.68rem', color: 'var(--t-slate-500)', whiteSpace: 'nowrap' }}>{n.time}</span>
+                    </span>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--t-slate-600)', marginTop: 3, overflow: 'hidden', displayWebkitBox: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflowWrap: 'anywhere' }}>{n.detail}</span>
+                  </button>
                 ))}
               </div>
             </div>
           )}
         </div>
-
-        {/* User profile dropdown */}
-        <div className="navbar-item-wrapper" ref={userMenuRef}>
-          <button 
-            className="navbar-profile-btn"
-            onClick={() => setShowUserMenu(!showUserMenu)}
-            aria-label="User profile"
-          >
-            <div className="navbar-avatar">
-              {activeUser?.avatar || 'AM'}
-            </div>
-            <div className="navbar-user-text">
-              <span className="navbar-user-name">{activeUser?.name}</span>
-              <span className="navbar-user-sub">
-                {personaType === 'admin' ? "Dean" : "Student"}
-              </span>
-            </div>
-            <ChevronDown size={13} className="chevron-icon" />
+        <div style={{ position: 'relative' }} ref={userRef}>
+          <button type="button" className="t-profile-btn" onClick={() => setOpenUser((v) => !v)} aria-expanded={openUser} aria-label="Account menu">
+            <span className="t-avatar sm" aria-hidden="true">{activeUser?.avatar || 'AM'}</span>
+            <span className="t-profile-meta">
+              <strong>{activeUser?.name?.split(' ').slice(0, 2).join(' ') || 'Demo'}</strong>
+              <span>{personaType === 'admin' ? 'Dean' : personaType === 'kiosk' ? 'Kiosk' : 'Student'}</span>
+            </span>
+            <ChevronDown size={14} aria-hidden="true" />
           </button>
-
-          {showUserMenu && (
-            <div className="navbar-dropdown user-dropdown">
-              <div className="user-dropdown-header">
-                <p className="user-dropdown-name">{activeUser?.name}</p>
-                <p className="user-dropdown-email">{activeUser?.email}</p>
-              </div>
-
-              <div className="dropdown-divider" />
-
-              <div className="user-dropdown-section">
-                <span className="dropdown-section-title">Switch Persona</span>
-                <button 
-                  className={`dropdown-item ${personaType === 'student' ? 'selected' : ''}`}
-                  onClick={() => { switchPersona('student'); setShowUserMenu(false); }}
-                >
-                  <GraduationCap size={15} />
-                  <span>Student (Alex Morgan)</span>
-                </button>
-                <button 
-                  className={`dropdown-item ${personaType === 'admin' ? 'selected' : ''}`}
-                  onClick={() => { switchPersona('admin'); setShowUserMenu(false); }}
-                >
-                  <ShieldCheck size={15} />
-                  <span>Dean (Dr. Sarah Vance)</span>
-                </button>
-                <button 
-                  className={`dropdown-item ${personaType === 'kiosk' ? 'selected' : ''}`}
-                  onClick={() => { switchPersona('kiosk'); setShowUserMenu(false); }}
-                >
-                  <Monitor size={15} />
-                  <span>Lobby Kiosk</span>
-                </button>
-              </div>
-
-              <div className="dropdown-divider" />
-
-              <div className="user-dropdown-section">
-                <button 
-                  className="dropdown-item"
-                  onClick={() => { handleResetDemoData(); setShowUserMenu(false); }}
-                >
-                  <RotateCcw size={14} />
-                  <span>Reset Demo Data</span>
-                </button>
-                <button 
-                  className="dropdown-item logout"
-                  onClick={() => {
-                    localStorage.removeItem('currentUser');
-                    window.location.href = '/landing';
-                  }}
-                >
-                  <LogOut size={14} />
-                  <span>Exit Session</span>
-                </button>
-              </div>
+          {openUser && (
+            <div className="t-card" role="menu" style={{ position: 'absolute', right: 0, top: 48, width: 250, zIndex: 120, padding: 8 }}>
+              <p style={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--t-slate-500)', padding: '6px 10px' }}>Switch showcase persona</p>
+              <button type="button" role="menuitem" className="t-command-item" onClick={() => goPersona('student')}><GraduationCap size={15} aria-hidden="true" /> Student — Alex Morgan</button>
+              <button type="button" role="menuitem" className="t-command-item" onClick={() => goPersona('admin')}><ShieldCheck size={15} aria-hidden="true" /> Dean — Dr. Vance</button>
+              <button type="button" role="menuitem" className="t-command-item" onClick={() => goPersona('kiosk')}><MonitorSmartphone size={15} aria-hidden="true" /> Lobby kiosk</button>
+              <div style={{ height: 1, background: 'var(--t-line-2)', margin: '6px 0' }} />
+              <button type="button" role="menuitem" className="t-command-item" onClick={() => { handleResetDemoData(); setOpenUser(false); }}><RotateCcw size={14} aria-hidden="true" /> Reset demo data</button>
+              <button type="button" role="menuitem" className="t-command-item" onClick={() => { try { localStorage.removeItem('currentUser'); } catch {} navigate('/landing'); }}><LogOut size={14} aria-hidden="true" /> Exit to landing</button>
             </div>
           )}
         </div>
       </div>
     </header>
+  );
+};
+
+export const CommandHint = () => {
+  const { setCommandOpen } = usePortal();
+  return (
+    <button type="button" className="t-btn t-btn-ghost t-btn-sm" onClick={() => setCommandOpen(true)}>
+      <Command size={14} aria-hidden="true" /> <span>Jump to…</span>
+    </button>
   );
 };
 

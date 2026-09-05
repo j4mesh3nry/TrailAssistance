@@ -311,6 +311,70 @@ export const addRating = (ratingData) => {
   return newRating;
 };
 
+// ---------- TrailAssistance 2.0 helpers (additive, zero-config) ----------
+export const SLA_DAYS = { urgent: 0.5, high: 2, medium: 4, low: 7 };
+
+export const getTicketAgeDays = (ticket) => {
+  try {
+    const created = new Date(ticket.createdAt).getTime();
+    const end = ticket.resolvedAt ? new Date(ticket.resolvedAt).getTime() : Date.now();
+    return Math.max(0, (end - created) / (1000 * 60 * 60 * 24));
+  } catch { return 0; }
+};
+
+export const getSlaInfo = (ticket) => {
+  const sla = SLA_DAYS[ticket.urgency] ?? 4;
+  const age = getTicketAgeDays(ticket);
+  const remaining = sla - age;
+  const isBreach = ticket.status !== 'resolved' && remaining < 0;
+  const dueLabel = ticket.status === 'resolved'
+    ? `Resolved in ${age < 1 ? `${Math.max(1, Math.round(age * 24))}h` : `${age.toFixed(1)}d`}`
+    : remaining < 0
+      ? `${Math.abs(remaining).toFixed(1)}d overdue`
+      : remaining < 1
+        ? `${Math.max(1, Math.round(remaining * 24))}h left`
+        : `${remaining.toFixed(1)}d left`;
+  return { slaDays: sla, ageDays: age, remainingDays: remaining, isBreach, dueLabel };
+};
+
+export const searchTickets = (tickets, query) => {
+  const q = (query || '').trim().toLowerCase();
+  if (!q) return tickets;
+  return tickets.filter((t) =>
+    [t.ticketNumber, t.title, t.studentName, t.studentId, t.category, t.details, t.purposeOfVisit, t.assignedStaff]
+      .filter(Boolean).join(' ').toLowerCase().includes(q)
+  );
+};
+
+export const getUpcomingAppointments = (tickets, email) => {
+  const list = tickets.filter((t) =>
+    (!email || t.studentEmail === email) &&
+    t.status === 'scheduled' && t.preferredMeetingSlot
+  );
+  return list.sort((a, b) => new Date(a.preferredMeetingSlot) - new Date(b.preferredMeetingSlot)).slice(0, 5);
+};
+
+export const exportTicketsCsv = (tickets) => {
+  const headers = ['Ticket ID', 'Student', 'Student ID', 'Title', 'Category', 'Urgency', 'Status', 'SLA', 'Officer', 'Filed'];
+  const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const rows = tickets.map((t) => [
+    t.ticketNumber, esc(t.studentName), t.studentId, esc(t.title), esc(t.category),
+    t.urgency, t.status, getSlaInfo(t).dueLabel, esc(t.assignedStaff),
+    t.createdAt ? new Date(t.createdAt).toLocaleDateString() : ''
+  ]);
+  return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+};
+
+export const downloadCsv = (filename, csvText) => {
+  const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url; link.download = filename;
+  document.body.appendChild(link); link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 800);
+};
+
 // Comprehensive Analytics calculation
 export const getPortalAnalytics = () => {
   const tickets = getTickets();

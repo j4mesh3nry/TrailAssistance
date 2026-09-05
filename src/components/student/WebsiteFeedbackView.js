@@ -1,174 +1,78 @@
 import React, { useState } from 'react';
+import { Star, Send, BadgeCheck } from 'lucide-react';
 import { usePortal } from '../../context/PortalContext';
-import { Star, Send, Sparkles, CheckCircle2 } from 'lucide-react';
-import './styles/StudentViews.css';
+import { PageHeader } from '../common/PageHeader';
+
+const TAGS = ['Fast triage', 'Clear updates', 'Kind staff', 'Easy booking', 'Signed memo'];
 
 export const WebsiteFeedbackView = () => {
-  const { activeUser, handleSubmitRating } = usePortal();
-  const [rating, setRating] = useState(5);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [category, setCategory] = useState("Dean's Office Walk-in Assistance");
-  const [feedback, setFeedback] = useState('');
-  const [selectedPraise, setSelectedPraise] = useState(['Fast Response', 'Clear Explanations']);
-  const [submitted, setSubmitted] = useState(false);
+  const { activeUser, handleSubmitRating, ratings } = usePortal();
+  const [score, setScore] = useState(5);
+  const [category, setCategory] = useState('Dean’s Office Visit');
+  const [text, setText] = useState('');
+  const [tags, setTags] = useState(['Fast triage']);
+  const [done, setDone] = useState(false);
 
-  const praiseTags = [
-    'Fast Response',
-    'Clear Explanations',
-    'Supportive Staff',
-    'Efficient Clearance',
-    'Intuitive Portal UI',
-    'Helpful Dean Advising'
-  ];
-
-  const togglePraise = (tag) => {
-    if (selectedPraise.includes(tag)) {
-      setSelectedPraise(selectedPraise.filter(t => t !== tag));
-    } else {
-      setSelectedPraise([...selectedPraise, tag]);
-    }
-  };
-
-  const handleSubmit = (e) => {
+  const submit = (e) => {
     e.preventDefault();
-    if (!feedback.trim()) return;
-
     handleSubmitRating({
-      studentName: activeUser?.name || 'Alex Morgan',
-      studentEmail: activeUser?.email || 'alex.morgan@demo.edu',
-      studentId: activeUser?.studentId || '2024-10492',
-      rating,
-      category,
-      feedback: `${feedback.trim()} [Tags: ${selectedPraise.join(', ')}]`
+      studentName: activeUser?.name, studentEmail: activeUser?.email, studentId: activeUser?.studentId,
+      rating: score, category, feedback: `${text || 'Great service.'} [${tags.join(', ')}]`
     });
-
-    setSubmitted(true);
+    setDone(true);
   };
+
+  if (done) {
+    return (
+      <div className="t-card t-empty">
+        <span className="t-kpi-icon" style={{ background: '#ecfdf5', color: '#047857', width: 56, height: 56 }}><BadgeCheck size={28} aria-hidden="true" /></span>
+        <h3>Salamat — feedback recorded</h3>
+        <p>Your rating feeds the Dean’s live satisfaction board. Reset the demo anytime to replay the flow.</p>
+        <button type="button" className="t-btn t-btn-secondary" onClick={() => setDone(false)}>Rate again</button>
+      </div>
+    );
+  }
 
   return (
-    <div className="student-view-container">
-      <div className="feedback-page-header">
-        <h1 className="tickets-page-title">Service Quality & Portal Feedback</h1>
-        <p className="tickets-page-sub">
-          Help the Office of the Dean continuously optimize academic counseling and student assistance workflows.
-        </p>
-      </div>
-
-      <div className="feedback-card-container">
-        {!submitted ? (
-          <form onSubmit={handleSubmit} className="card-modern feedback-form-card">
-            {/* Star Rating Section */}
-            <div className="star-rating-block">
-              <label className="feedback-block-label">Overall Service Satisfaction</label>
-              <div className="stars-row">
-                {[1, 2, 3, 4, 5].map(star => {
-                  const isFilled = (hoverRating || rating) >= star;
-                  return (
-                    <button
-                      key={star}
-                      type="button"
-                      className={`star-btn ${isFilled ? 'filled' : ''}`}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(0)}
-                      onClick={() => setRating(star)}
-                      aria-label={`Rate ${star} stars`}
-                    >
-                      <Star size={32} />
-                    </button>
-                  );
-                })}
-              </div>
-              <span className="rating-score-caption">
-                {rating === 5 && 'Outstanding - Exceeded Expectations'}
-                {rating === 4 && 'Very Good - Helpful & Efficient'}
-                {rating === 3 && 'Satisfactory - Standard Service'}
-                {rating === 2 && 'Needs Improvement - Experienced Delays'}
-                {rating === 1 && 'Unsatisfactory'}
-              </span>
-            </div>
-
-            {/* Assistance Category */}
-            <div className="form-field-group" style={{ marginTop: '20px' }}>
-              <label className="field-label">Assistance Touchpoint</label>
-              <select
-                className="select-modern"
-                value={category}
-                onChange={e => setCategory(e.target.value)}
-              >
-                <option value="Dean's Office Walk-in Assistance">Dean's Office Walk-in Assistance</option>
-                <option value="Academic Advising Consultation">Academic Advising Consultation</option>
-                <option value="Financial Aid Hardship Review">Financial Aid Hardship Review</option>
-                <option value="Graduation Clearance Processing">Graduation Clearance Processing</option>
-                <option value="Portal Usability & Self-Service">Portal Usability & Self-Service</option>
-              </select>
-            </div>
-
-            {/* Praise Tags */}
-            <div className="form-field-group" style={{ marginTop: '20px' }}>
-              <label className="field-label">What went well? (Select all that apply)</label>
-              <div className="praise-tags-cloud">
-                {praiseTags.map(tag => {
-                  const isSelected = selectedPraise.includes(tag);
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      className={`praise-tag-btn ${isSelected ? 'active' : ''}`}
-                      onClick={() => togglePraise(tag)}
-                    >
-                      <Sparkles size={13} />
-                      <span>{tag}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Narrative Feedback */}
-            <div className="form-field-group" style={{ marginTop: '20px' }}>
-              <label className="field-label">
-                Detailed Comments & Suggestions <span className="req">*</span>
-              </label>
-              <textarea
-                className="input-modern"
-                rows={4}
-                required
-                placeholder="Share your thoughts on the counseling responsiveness, clarity of instructions, or ideas for improving university services..."
-                value={feedback}
-                onChange={e => setFeedback(e.target.value)}
-              />
-            </div>
-
-            <div className="form-actions-bar right-only" style={{ marginTop: '24px' }}>
-              <button type="submit" className="btn-primary">
-                <Send size={16} />
-                <span>Submit Evaluation</span>
+    <div style={{ maxWidth: 680, margin: '0 auto' }}>
+      <PageHeader kicker="Closes the loop" title="Rate your service" sub="Takes 20 seconds. Powers the public satisfaction proof on the landing page." />
+      <form onSubmit={submit} className="t-card t-card-pad">
+        <div style={{ textAlign: 'center', background: '#f8fafc', border: '1px solid var(--t-line)', borderRadius: 14, padding: 18 }}>
+          <strong style={{ fontSize: '0.86rem' }}>Overall — how did we do?</strong>
+          <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginTop: 10 }} role="radiogroup" aria-label="Star rating">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button key={n} type="button" role="radio" aria-checked={score === n} onClick={() => setScore(n)} aria-label={`${n} stars`} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+                <Star size={32} aria-hidden="true" style={{ color: n <= score ? '#f59e0b' : '#e2e8f0', fill: n <= score ? '#f59e0b' : 'none' }} />
               </button>
-            </div>
-          </form>
-        ) : (
-          <div className="card-modern feedback-success-card">
-            <div className="success-icon-bubble">
-              <CheckCircle2 size={44} />
-            </div>
-            <h2>Thank You for Your Feedback!</h2>
-            <p>
-              Your rating of <strong>{rating} / 5 Stars</strong> has been submitted to the Academic Affairs Quality Assurance Committee.
-            </p>
-            <div className="feedback-thank-actions">
-              <button 
-                className="btn-secondary"
-                onClick={() => {
-                  setSubmitted(false);
-                  setFeedback('');
-                }}
-              >
-                Submit Another Review
-              </button>
-            </div>
+            ))}
           </div>
-        )}
-      </div>
+          <p style={{ fontSize: '0.78rem', color: 'var(--t-slate-500)', marginTop: 6 }}>{score} / 5 — {score >= 4 ? 'Loved it' : score === 3 ? 'It was okay' : 'Needs work'}</p>
+        </div>
+        <div className="t-field" style={{ marginTop: 14 }}>
+          <label className="t-label" htmlFor="fb-cat">Service touched</label>
+          <select id="fb-cat" className="t-select" value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option>Dean’s Office Visit</option>
+            <option>Enrollment & Overload</option>
+            <option>Clearance & Graduation</option>
+            <option>Financial Aid</option>
+            <option>Lobby Kiosk</option>
+          </select>
+        </div>
+        <div className="t-field">
+          <span className="t-label">What stood out? (tap all that apply)</span>
+          <div className="t-chip-row">
+            {TAGS.map((t) => (
+              <button key={t} type="button" className={`t-chip ${tags.includes(t) ? 'selected' : ''}`} onClick={() => setTags((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t])}>{t}</button>
+            ))}
+          </div>
+        </div>
+        <div className="t-field">
+          <label className="t-label" htmlFor="fb-text">Tell us more</label>
+          <textarea id="fb-text" className="t-textarea" value={text} onChange={(e) => setText(e.target.value)} placeholder="What helped? What should be faster next time?" />
+        </div>
+        <button type="submit" className="t-btn t-btn-gold" style={{ width: '100%' }}><Send size={15} aria-hidden="true" /> Submit feedback</button>
+        <p style={{ fontSize: '0.72rem', color: 'var(--t-slate-500)', textAlign: 'center', marginTop: 10 }}>{ratings.length} verified reviews in this showcase dataset</p>
+      </form>
     </div>
   );
 };

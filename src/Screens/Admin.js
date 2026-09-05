@@ -1,97 +1,87 @@
 import React, { useState } from 'react';
-import Navbar from '../components/common/Navbar';
+import { LayoutDashboard, Inbox, Users, Star, Download, RotateCcw } from 'lucide-react';
 import Sidebar from '../components/common/Sidebar';
+import Navbar from '../components/common/Navbar';
+import CommandPalette from '../components/common/CommandPalette';
 import DemoRoleSwitcher from '../components/common/DemoRoleSwitcher';
 import ToastContainer from '../components/common/ToastContainer';
 import ExecutiveMetricsView from '../components/admin/ExecutiveMetricsView';
 import TicketManagementView from '../components/admin/TicketManagementView';
 import StudentDirectoryView from '../components/admin/StudentDirectoryView';
 import RatingsAnalyticsView from '../components/admin/RatingsAnalyticsView';
-import { BarChart3, ShieldAlert, Users, Star } from 'lucide-react';
+import { usePortal } from '../context/PortalContext';
+import { downloadCsv, exportTicketsCsv } from '../services/portalStorage';
+
+const TITLES = {
+  command: ['Dean console', 'Command overview'],
+  queue: ['Dean console', 'Triage queue'],
+  students: ['Dean console', 'Student directory'],
+  insights: ['Dean console', 'Satisfaction insights'],
+};
 
 export const Admin = () => {
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [view, setView] = useState('command');
+  const [focusTicket, setFocusTicket] = useState(null);
+  const { tickets, showToast, handleResetDemoData } = usePortal();
 
-  const getPageTitle = () => {
-    switch (currentView) {
-      case 'dashboard': return "Executive Metrics & Triage";
-      case 'tickets': return "Academic Ticket Operations";
-      case 'students': return "Student Directory";
-      case 'ratings': return "Service Satisfaction";
-      default: return "Dean's Console";
-    }
+  const openTicket = (ticketNumber) => { setFocusTicket(ticketNumber); setView('queue'); };
+  const exportAll = () => {
+    downloadCsv(`TrailAssistance_ledger_${new Date().toISOString().slice(0, 10)}.csv`, exportTicketsCsv(tickets));
+    showToast('Ledger exported — CSV downloaded', 'success');
   };
 
+  const sections = [
+    {
+      label: 'Operations', items: [
+        { key: 'command', label: 'Command', icon: LayoutDashboard },
+        { key: 'queue', label: 'Triage queue', icon: Inbox, countKey: 'adminActive' },
+      ]
+    },
+    {
+      label: 'People & proof', items: [
+        { key: 'students', label: 'Students', icon: Users },
+        { key: 'insights', label: 'Insights', icon: Star },
+      ]
+    }
+  ];
+
+  const [crumb, title] = TITLES[view];
+
   return (
-    <div className="app-portal-layout">
+    <div className="t-shell">
+      <a className="t-skip" href="#admin-main">Skip to content</a>
       <ToastContainer />
       <DemoRoleSwitcher />
-
-      {/* Sidebar */}
+      <CommandPalette onSelectTicket={openTicket} />
       <Sidebar
-        currentView={currentView}
-        onViewChange={setCurrentView}
-        collapsed={sidebarCollapsed}
-        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-        mobileOpen={mobileSidebarOpen}
-        onCloseMobile={() => setMobileSidebarOpen(false)}
-        mode="admin"
+        title="Dean console" subtitle="USTP • Operations"
+        sections={sections} currentView={view} onViewChange={setView}
+        footer={
+          <>
+            <button type="button" className="t-nav-btn" onClick={exportAll}><Download size={16} aria-hidden="true" /><span>Export ledger</span></button>
+            <button type="button" className="t-nav-btn" onClick={handleResetDemoData}><RotateCcw size={16} aria-hidden="true" /><span>Reset demo</span></button>
+          </>
+        }
       />
-
-      {/* Main Operations Area */}
-      <div className="app-portal-main">
-        <Navbar
-          pageTitle={getPageTitle()}
-          onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-        />
-
-        <main style={{ flex: 1, paddingBottom: '80px' }}>
-          {currentView === 'dashboard' && (
-            <ExecutiveMetricsView onNavigate={setCurrentView} />
-          )}
-          {currentView === 'tickets' && (
-            <TicketManagementView />
-          )}
-          {currentView === 'students' && (
-            <StudentDirectoryView />
-          )}
-          {currentView === 'ratings' && (
-            <RatingsAnalyticsView />
-          )}
+      <div className="t-main">
+        <Navbar crumb={crumb} pageTitle={title} onOpenQueue={openTicket} />
+        <main className="t-page" id="admin-main">
+          {view === 'command' && <ExecutiveMetricsView onOpenQueue={() => setView('queue')} onOpenTicket={openTicket} />}
+          {view === 'queue' && <TicketManagementView focusTicket={focusTicket} clearFocus={() => setFocusTicket(null)} />}
+          {view === 'students' && <StudentDirectoryView />}
+          {view === 'insights' && <RatingsAnalyticsView />}
         </main>
-
-        {/* Native Mobile Bottom Navigation Bar */}
-        <nav className="mobile-bottom-nav">
-          <button 
-            className={`mobile-nav-tab ${currentView === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setCurrentView('dashboard')}
-          >
-            <BarChart3 size={18} />
-            <span>Metrics</span>
-          </button>
-          <button 
-            className={`mobile-nav-tab ${currentView === 'tickets' ? 'active' : ''}`}
-            onClick={() => setCurrentView('tickets')}
-          >
-            <ShieldAlert size={18} />
-            <span>Queue</span>
-          </button>
-          <button 
-            className={`mobile-nav-tab ${currentView === 'students' ? 'active' : ''}`}
-            onClick={() => setCurrentView('students')}
-          >
-            <Users size={18} />
-            <span>Roster</span>
-          </button>
-          <button 
-            className={`mobile-nav-tab ${currentView === 'ratings' ? 'active' : ''}`}
-            onClick={() => setCurrentView('ratings')}
-          >
-            <Star size={18} />
-            <span>Reviews</span>
-          </button>
+        <nav className="t-bottomnav" aria-label="Dean">
+          {[
+            { key: 'command', label: 'Command', Icon: LayoutDashboard },
+            { key: 'queue', label: 'Queue', Icon: Inbox },
+            { key: 'students', label: 'Students', Icon: Users },
+            { key: 'insights', label: 'Insights', Icon: Star },
+          ].map((b) => (
+            <button key={b.key} type="button" className={view === b.key ? 'active' : ''} onClick={() => setView(b.key)}>
+              <b.Icon size={20} aria-hidden="true" /><span>{b.label}</span>
+            </button>
+          ))}
         </nav>
       </div>
     </div>

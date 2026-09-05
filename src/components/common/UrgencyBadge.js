@@ -1,36 +1,12 @@
 import React from 'react';
 
-const URGENCY_CONFIG = {
-  low: {
-    label: 'Low Priority',
-    className: 'urgency-low',
-    icon: '●'
-  },
-  medium: {
-    label: 'Medium',
-    className: 'urgency-medium',
-    icon: '●'
-  },
-  high: {
-    label: 'High Urgency',
-    className: 'urgency-high',
-    icon: '▲'
-  },
-  urgent: {
-    label: 'Urgent Action',
-    className: 'urgency-urgent',
-    icon: '●'
-  }
-};
+const LABELS = { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' };
 
-export const UrgencyBadge = ({ urgency }) => {
-  const config = URGENCY_CONFIG[urgency?.toLowerCase()] || URGENCY_CONFIG.medium;
-  return (
-    <span className={`badge ${config.className}`}>
-      <span style={{ fontSize: '0.65rem' }}>{config.icon}</span>
-      {config.label}
-    </span>
-  );
-};
+export const UrgencyBadge = ({ urgency }) => (
+  <span className={`t-badge t-urgent-${urgency || 'medium'}`}>
+    <span className="t-dot" aria-hidden="true" />
+    {LABELS[urgency] || urgency}
+  </span>
+);
 
 export default UrgencyBadge;

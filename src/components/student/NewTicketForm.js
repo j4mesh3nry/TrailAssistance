@@ -1,452 +1,246 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { GraduationCap, Wallet, BadgeCheck, BookOpen, LifeBuoy, HeartHandshake, ArrowRight, ArrowLeft, Send, Save, Eraser } from 'lucide-react';
 import { usePortal } from '../../context/PortalContext';
-import { 
-  GraduationCap, 
-  DollarSign, 
-  CheckSquare, 
-  BookOpen, 
-  AlertTriangle, 
-  HeartHandshake,
-  Send,
-  ArrowRight,
-  ArrowLeft,
-  Info,
-  CheckCircle2
-} from 'lucide-react';
-import './styles/StudentViews.css';
+import { PageHeader } from '../common/PageHeader';
+import StatusBadge from '../common/StatusBadge';
 
-const CATEGORIES = [
-  {
-    id: 'Academic Advising',
-    label: 'Academic Advising',
-    desc: 'Prerequisite overrides, degree audit, double majors & course planning',
-    icon: GraduationCap,
-    color: 'indigo'
-  },
-  {
-    id: 'Financial Aid & Scholarships',
-    label: 'Financial Aid & Grants',
-    desc: 'Emergency tuition grants, scholarship appeals, stipend disbursements',
-    icon: DollarSign,
-    color: 'emerald'
-  },
-  {
-    id: 'Clearance & Graduation',
-    label: 'Clearance & Graduation',
-    desc: 'Department sign-offs, library holds, diploma requests, credentials',
-    icon: CheckSquare,
-    color: 'sky'
-  },
-  {
-    id: 'Enrollment & Registration',
-    label: 'Enrollment & Overload',
-    desc: 'Late section add petitions, 21+ unit overload approvals, cross-enrollment',
-    icon: BookOpen,
-    color: 'amber'
-  },
-  {
-    id: 'Student Grievance & Appeal',
-    label: 'Grievance & Exam Appeal',
-    desc: 'Grade disputes, rubric reviews, faculty consultation mediation',
-    icon: AlertTriangle,
-    color: 'rose'
-  },
-  {
-    id: 'Special Accommodation',
-    label: 'Accommodation & Wellness',
-    desc: 'Medical absence waivers, accessibility needs, thesis lab extensions',
-    icon: HeartHandshake,
-    color: 'purple'
-  }
+const CATS = [
+  { id: 'Academic Advising', label: 'Advising', desc: 'Waivers, degree audit, course planning', Icon: GraduationCap, bg: '#eef2ff', fg: '#4338ca' },
+  { id: 'Financial Aid & Scholarships', label: 'Aid & grants', desc: 'Emergency grants, appeals, stipends', Icon: Wallet, bg: '#ecfdf5', fg: '#047857' },
+  { id: 'Clearance & Graduation', label: 'Clearance', desc: 'Sign-offs, holds, diplomas', Icon: BadgeCheck, bg: '#f0f9ff', fg: '#0369a1' },
+  { id: 'Enrollment & Registration', label: 'Enrollment', desc: 'Add/drop, overload, cross-enroll', Icon: BookOpen, bg: '#fffbeb', fg: '#b45309' },
+  { id: 'Student Grievance & Appeal', label: 'Grievance', desc: 'Grade disputes, mediation', Icon: LifeBuoy, bg: '#fff1f2', fg: '#be123c' },
+  { id: 'Special Accommodation', label: 'Accommodation', desc: 'Medical, access, lab extensions', Icon: HeartHandshake, bg: '#f5f3ff', fg: '#7c3aed' },
 ];
 
-const URGENCIES = [
-  {
-    id: 'low',
-    label: 'Low Priority',
-    sla: '5–7 Business Days',
-    desc: 'General inquiry or prospective planning',
-    color: 'var(--slate-500)'
-  },
-  {
-    id: 'medium',
-    label: 'Medium Priority',
-    sla: '3–4 Business Days',
-    desc: 'Standard curricular or clearance petition',
-    color: 'var(--indigo-600)'
-  },
-  {
-    id: 'high',
-    label: 'High Priority',
-    sla: '24–48 Hours',
-    desc: 'Urgent deadline for upcoming semester registration',
-    color: 'var(--amber-600)'
-  },
-  {
-    id: 'urgent',
-    label: 'Critical / Urgent',
-    sla: 'Same-Day / Expedited',
-    desc: 'Immediate graduation hold or severe academic emergency',
-    color: 'var(--rose-600)'
-  }
+const URG = [
+  { id: 'low', label: 'Low', sla: '5–7 days', desc: 'Planning ahead' },
+  { id: 'medium', label: 'Medium', sla: '3–4 days', desc: 'Standard petition' },
+  { id: 'high', label: 'High', sla: '24–48h', desc: 'Registration at risk' },
+  { id: 'urgent', label: 'Urgent', sla: 'Same-day', desc: 'Graduation / emergency' },
 ];
 
-export const NewTicketForm = ({ onNavigate }) => {
-  const { activeUser, handleCreateTicket } = usePortal();
+const MODES = ["Dean's Office (Room 302B)", 'Virtual Zoom Consultation', 'Advising Center (Desk 4)', 'Records review (async)'];
+
+const blank = {
+  category: 'Academic Advising', title: '', purposeOfVisit: '',
+  urgency: 'medium', preferredMeetingSlot: '', meetingMode: MODES[0], preferredContact: 'University Email',
+  details: '', attachTranscript: true, attachAudit: true
+};
+
+const quickSlot = (dayOffset, h, m) => {
+  const d = new Date(); d.setDate(d.getDate() + dayOffset); d.setHours(h, m, 0, 0);
+  if (d < new Date()) d.setDate(d.getDate() + 1);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+export const NewTicketForm = ({ onNavigate, onCreated }) => {
+  const { activeUser, handleCreateTicket, draft, saveDraft, showToast } = usePortal();
   const [step, setStep] = useState(1);
+  const [form, setForm] = useState(draft || blank);
+  const [errs, setErrs] = useState({});
 
-  const [formData, setFormData] = useState({
-    category: 'Academic Advising',
-    title: '',
-    purposeOfVisit: '',
-    urgency: 'medium',
-    preferredMeetingSlot: '',
-    meetingMode: "Dean's Office (Room 302B)",
-    preferredContact: 'University Email',
-    details: '',
-    hasPrerequisiteDoc: true,
-    hasTranscript: true,
-    additionalNotes: ''
-  });
+  useEffect(() => { if (draft) showToast('Draft restored — pick up where you left off', 'info'); }, []); // eslint-disable-line
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const dirty = form.title || form.details || form.purposeOfVisit;
+      if (dirty && step < 4) saveDraft(form);
+    }, 600);
+    return () => clearTimeout(id);
+  }, [form, step, saveDraft]);
 
-  const [errors, setErrors] = useState({});
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target?.value ?? e }));
+  const slaPreview = useMemo(() => URG.find((u) => u.id === form.urgency)?.sla || '', [form.urgency]);
 
-  const validateStep1 = () => {
-    const errs = {};
-    if (!formData.title.trim()) errs.title = 'Concern title is required';
-    if (!formData.purposeOfVisit.trim()) errs.purposeOfVisit = 'Purpose of visit is required';
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
+  const valid1 = () => {
+    const e = {};
+    if (!form.title.trim()) e.title = 'Give it a clear subject';
+    if (!form.purposeOfVisit.trim()) e.purpose = 'What should the Dean approve or decide?';
+    setErrs(e); return !Object.keys(e).length;
+  };
+  const valid2 = () => {
+    const e = {};
+    if (!form.preferredMeetingSlot) e.slot = 'Pick a slot — or tap a quick window';
+    setErrs(e); return !Object.keys(e).length;
+  };
+  const valid3 = () => {
+    const e = {};
+    if (!form.details.trim() || form.details.length < 20) e.details = 'Add context (min 20 chars) — courses, dates, what you need';
+    setErrs(e); return !Object.keys(e).length;
   };
 
-  const validateStep2 = () => {
-    const errs = {};
-    if (!formData.preferredMeetingSlot) errs.preferredMeetingSlot = 'Please select a preferred meeting slot';
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
+  const next = () => {
+    if (step === 1 && valid1()) setStep(2);
+    else if (step === 2 && valid2()) setStep(3);
+    else if (step === 3 && valid3()) setStep(4);
   };
 
-  const validateStep3 = () => {
-    const errs = {};
-    if (!formData.details.trim() || formData.details.length < 20) {
-      errs.details = 'Please provide a detailed description (at least 20 characters)';
-    }
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
-
-  const handleNext = () => {
-    if (step === 1 && validateStep1()) setStep(2);
-    else if (step === 2 && validateStep2()) setStep(3);
-  };
-
-  const handlePrev = () => {
-    setStep(prev => Math.max(1, prev - 1));
-  };
-
-  const handleSubmit = (e) => {
+  const submit = (e) => {
     e.preventDefault();
-    if (!validateStep3()) return;
-
-    handleCreateTicket({
-      studentId: activeUser?.studentId || '2024-10492',
-      studentName: activeUser?.name || 'Alex Morgan',
-      studentEmail: activeUser?.email || 'alex.morgan@demo.edu',
-      studentProgram: activeUser?.program || 'BS Computer Science',
-      category: formData.category,
-      title: formData.title,
-      purposeOfVisit: formData.purposeOfVisit,
-      urgency: formData.urgency,
-      preferredMeetingSlot: formData.preferredMeetingSlot,
-      meetingMode: formData.meetingMode,
-      preferredContact: formData.preferredContact,
-      details: formData.details,
+    if (!valid3()) { setStep(3); return; }
+    const created = handleCreateTicket({
+      studentId: activeUser?.studentId, studentName: activeUser?.name,
+      studentEmail: activeUser?.email, studentProgram: activeUser?.program,
+      ...form,
       additionalInfo: {
-        academicYear: activeUser?.yearOfStudy || '4th Year - Senior',
-        advisingHold: 'Active',
-        documentsAttached: formData.hasTranscript ? 'Unofficial Transcript Attached' : 'None'
+        year: activeUser?.yearOfStudy, sla: slaPreview,
+        docs: [form.attachTranscript && 'Unofficial transcript', form.attachAudit && 'Degree-audit sheet'].filter(Boolean).join(' + ') || 'None'
       }
     });
-
-    onNavigate('myTickets');
+    if (onCreated) onCreated(created.ticketNumber);
+    else onNavigate('requests');
   };
 
   return (
-    <div className="student-view-container">
-      <div className="form-header-banner">
-        <h1 className="form-page-title">File an Academic Concern / Assistance Request</h1>
-        <p className="form-page-sub">
-          Submit your petition directly to the Office of the Dean & Academic Advising Center.
-        </p>
+    <div>
+      <PageHeader
+        kicker="Wizard • autosaves as draft"
+        title="File a request the Dean can act on"
+        sub="Four short steps. We show the SLA up front so you know exactly how fast to expect movement."
+        actions={draft ? <button type="button" className="t-btn t-btn-ghost t-btn-sm" onClick={() => { saveDraft(null); setForm(blank); setStep(1); }}><Eraser size={14} aria-hidden="true" /> Discard draft</button> : null}
+      />
 
-        {/* Multi-step progress indicator */}
-        <div className="form-steps-indicator">
-          <div className={`step-dot ${step >= 1 ? 'active' : ''}`}>
-            <span className="dot-number">1</span>
-            <span className="dot-text">Category & Purpose</span>
-          </div>
-          <div className={`step-connector ${step >= 2 ? 'active' : ''}`} />
-          <div className={`step-dot ${step >= 2 ? 'active' : ''}`}>
-            <span className="dot-number">2</span>
-            <span className="dot-text">Urgency & Scheduling</span>
-          </div>
-          <div className={`step-connector ${step >= 3 ? 'active' : ''}`} />
-          <div className={`step-dot ${step >= 3 ? 'active' : ''}`}>
-            <span className="dot-number">3</span>
-            <span className="dot-text">Narrative & Review</span>
-          </div>
+      <div className="t-card t-card-pad" style={{ marginBottom: 14 }}>
+        <div className="t-steps" aria-label={`Step ${step} of 4`}>
+          {['Category', 'Schedule', 'Narrative', 'Review'].map((label, i) => {
+            const n = i + 1;
+            return (
+              <React.Fragment key={label}>
+                <div className={`t-step ${step === n ? 'active' : step > n ? 'done' : ''}`}>
+                  <span className="t-step-num">{step > n ? '✓' : n}</span> {label}
+                </div>
+                {n < 4 && <div className={`t-step-line ${step > n ? 'done' : ''}`} />}
+              </React.Fragment>
+            );
+          })}
         </div>
-      </div>
 
-      <form onSubmit={handleSubmit} className="ticket-filing-card card-modern">
-        {/* STEP 1: Category & Purpose */}
         {step === 1 && (
-          <div className="form-step-content">
-            <h2 className="step-section-heading">
-              <span>Step 1:</span> Select Concern Classification
-            </h2>
-
-            <div className="category-selection-grid">
-              {CATEGORIES.map(cat => {
-                const Icon = cat.icon;
-                const isSelected = formData.category === cat.id;
-                return (
-                  <div
-                    key={cat.id}
-                    className={`category-select-card ${isSelected ? 'selected' : ''}`}
-                    onClick={() => setFormData({ ...formData, category: cat.id })}
-                  >
-                    <div className={`cat-icon-bubble ${cat.color}`}>
-                      <Icon size={20} />
-                    </div>
-                    <div className="cat-card-body">
-                      <h4>{cat.label}</h4>
-                      <p>{cat.desc}</p>
-                    </div>
-                    {isSelected && (
-                      <div className="cat-check-badge">
-                        <CheckCircle2 size={16} />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+          <div>
+            <span className="t-label" id="cat-label">What’s this about?</span>
+            <div className="t-pick-grid" role="radiogroup" aria-labelledby="cat-label">
+              {CATS.map((c) => (
+                <button key={c.id} type="button" role="radio" aria-checked={form.category === c.id} className={`t-pick ${form.category === c.id ? 'selected' : ''}`} onClick={() => setForm((f) => ({ ...f, category: c.id }))}>
+                  <span className="t-pick-icon" style={{ background: c.bg, color: c.fg }}><c.Icon size={20} aria-hidden="true" /></span>
+                  <span><strong>{c.label}</strong><span>{c.desc}</span></span>
+                </button>
+              ))}
             </div>
-
-            <div className="form-input-row" style={{ marginTop: '24px' }}>
-              <div className="form-field-group">
-                <label className="field-label">
-                  Subject / Concern Title <span className="req">*</span>
-                </label>
-                <input
-                  type="text"
-                  className={`input-modern ${errors.title ? 'error' : ''}`}
-                  placeholder="e.g., Senior Capstone II Prerequisite Override"
-                  value={formData.title}
-                  onChange={e => setFormData({ ...formData, title: e.target.value })}
-                />
-                {errors.title && <span className="field-error-msg">{errors.title}</span>}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 14 }}>
+              <div className="t-field" style={{ margin: 0 }}>
+                <label className="t-label" htmlFor="f-title">Subject <span className="t-req">*</span></label>
+                <input id="f-title" className="t-input" value={form.title} onChange={set('title')} placeholder="e.g. Capstone II prerequisite override" />
+                {errs.title && <span className="t-err">{errs.title}</span>}
               </div>
-
-              <div className="form-field-group">
-                <label className="field-label">
-                  Purpose of Visit <span className="req">*</span>
-                </label>
-                <input
-                  type="text"
-                  className={`input-modern ${errors.purposeOfVisit ? 'error' : ''}`}
-                  placeholder="e.g., Dean's Approval for Concurrent Course Registration"
-                  value={formData.purposeOfVisit}
-                  onChange={e => setFormData({ ...formData, purposeOfVisit: e.target.value })}
-                />
-                {errors.purposeOfVisit && <span className="field-error-msg">{errors.purposeOfVisit}</span>}
+              <div className="t-field" style={{ margin: 0 }}>
+                <label className="t-label" htmlFor="f-purpose">Decision needed <span className="t-req">*</span></label>
+                <input id="f-purpose" className="t-input" value={form.purposeOfVisit} onChange={set('purposeOfVisit')} placeholder="e.g. Approve concurrent CS-499 + CS-408" />
+                {errs.purpose && <span className="t-err">{errs.purpose}</span>}
               </div>
-            </div>
-
-            <div className="form-actions-bar right-only">
-              <button type="button" className="btn-primary" onClick={handleNext}>
-                <span>Continue to Scheduling</span>
-                <ArrowRight size={16} />
-              </button>
             </div>
           </div>
         )}
 
-        {/* STEP 2: Urgency & Scheduling */}
         {step === 2 && (
-          <div className="form-step-content">
-            <h2 className="step-section-heading">
-              <span>Step 2:</span> Urgency Level & Preferred Appointment Slot
-            </h2>
-
-            <div className="form-field-group">
-              <label className="field-label">Select Urgency Level & Expected SLA</label>
-              <div className="urgency-selection-grid">
-                {URGENCIES.map(urg => {
-                  const isSelected = formData.urgency === urg.id;
-                  return (
-                    <div
-                      key={urg.id}
-                      className={`urgency-select-card ${isSelected ? 'selected' : ''}`}
-                      onClick={() => setFormData({ ...formData, urgency: urg.id })}
-                    >
-                      <div className="urg-header">
-                        <span className="urg-title">{urg.label}</span>
-                        <span className="urg-sla">{urg.sla}</span>
-                      </div>
-                      <p className="urg-desc">{urg.desc}</p>
-                    </div>
-                  );
-                })}
+          <div>
+            <span className="t-label">Urgency → SLA <span className="t-badge t-status-scheduled" style={{ marginLeft: 6 }}>{slaPreview}</span></span>
+            <div className="t-chip-row" role="radiogroup" aria-label="Urgency">
+              {URG.map((u) => (
+                <button key={u.id} type="button" role="radio" aria-checked={form.urgency === u.id} className={`t-chip ${form.urgency === u.id ? 'selected' : ''}`} onClick={() => setForm((f) => ({ ...f, urgency: u.id }))} title={u.desc}>
+                  {u.label} • {u.sla}
+                </button>
+              ))}
+            </div>
+            <div className="t-field" style={{ marginTop: 14 }}>
+              <span className="t-label">Quick windows — Dean’s priority hours</span>
+              <div className="t-chip-row">
+                {[
+                  { label: 'Today • 1:30 PM walk-in', v: quickSlot(0, 13, 30) },
+                  { label: 'Tomorrow • 9:00 AM', v: quickSlot(1, 9, 0) },
+                  { label: 'Tomorrow • 3:00 PM', v: quickSlot(1, 15, 0) },
+                ].map((s) => (
+                  <button key={s.label} type="button" className="t-chip" onClick={() => setForm((f) => ({ ...f, preferredMeetingSlot: s.v }))}>{s.label}</button>
+                ))}
               </div>
             </div>
-
-            <div className="form-input-row" style={{ marginTop: '20px' }}>
-              <div className="form-field-group">
-                <label className="field-label">
-                  Preferred Appointment Date & Time <span className="req">*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  className={`input-modern ${errors.preferredMeetingSlot ? 'error' : ''}`}
-                  value={formData.preferredMeetingSlot}
-                  onChange={e => setFormData({ ...formData, preferredMeetingSlot: e.target.value })}
-                />
-                {errors.preferredMeetingSlot && (
-                  <span className="field-error-msg">{errors.preferredMeetingSlot}</span>
-                )}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div className="t-field" style={{ margin: 0 }}>
+                <label className="t-label" htmlFor="f-slot">Preferred slot <span className="t-req">*</span></label>
+                <input id="f-slot" type="datetime-local" className="t-input" value={form.preferredMeetingSlot} onChange={set('preferredMeetingSlot')} />
+                {errs.slot && <span className="t-err">{errs.slot}</span>}
               </div>
-
-              <div className="form-field-group">
-                <label className="field-label">Consultation Delivery Mode</label>
-                <select
-                  className="select-modern"
-                  value={formData.meetingMode}
-                  onChange={e => setFormData({ ...formData, meetingMode: e.target.value })}
-                >
-                  <option value="Dean's Office (Room 302B)">In-Person &bull; Dean's Office (Room 302B)</option>
-                  <option value="Virtual Zoom Consultation">Virtual &bull; Secure Zoom Consultation</option>
-                  <option value="Academic Advising Center">In-Person &bull; Advising Center (Desk 4)</option>
-                  <option value="Asynchronous Records Review">Asynchronous &bull; Official Records Sign-off Only</option>
+              <div className="t-field" style={{ margin: 0 }}>
+                <label className="t-label" htmlFor="f-mode">How should we meet?</label>
+                <select id="f-mode" className="t-select" value={form.meetingMode} onChange={set('meetingMode')}>
+                  {MODES.map((m) => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
             </div>
-
-            <div className="form-input-row">
-              <div className="form-field-group">
-                <label className="field-label">Preferred Contact Channel</label>
-                <select
-                  className="select-modern"
-                  value={formData.preferredContact}
-                  onChange={e => setFormData({ ...formData, preferredContact: e.target.value })}
-                >
-                  <option value="University Email">University Email (Instant Portal Notification)</option>
-                  <option value="SMS Notification">SMS Mobile Notification</option>
-                  <option value="Dean's Desk Walk-in">Dean's Office Reception Call</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="form-actions-bar">
-              <button type="button" className="btn-secondary" onClick={handlePrev}>
-                <ArrowLeft size={16} />
-                <span>Back</span>
-              </button>
-              <button type="button" className="btn-primary" onClick={handleNext}>
-                <span>Continue to Narrative</span>
-                <ArrowRight size={16} />
-              </button>
+            <div className="t-field" style={{ marginTop: 10, marginBottom: 0 }}>
+              <label className="t-label" htmlFor="f-contact">Notify me via</label>
+              <select id="f-contact" className="t-select" value={form.preferredContact} onChange={set('preferredContact')}>
+                <option>University Email</option>
+                <option>SMS Notification</option>
+                <option>Dean’s Desk Walk-in</option>
+              </select>
             </div>
           </div>
         )}
 
-        {/* STEP 3: Narrative & Review */}
         {step === 3 && (
-          <div className="form-step-content">
-            <h2 className="step-section-heading">
-              <span>Step 3:</span> Concern Narrative & Supplementary Records
-            </h2>
-
-            <div className="form-field-group">
-              <label className="field-label">
-                Detailed Explanation & Justification <span className="req">*</span>
+          <div>
+            <div className="t-field">
+              <label className="t-label" htmlFor="f-details">Tell the story — background, impact, ask <span className="t-req">*</span></label>
+              <textarea id="f-details" className="t-textarea" value={form.details} onChange={set('details')} placeholder="Courses affected, deadlines, documents you have, exact relief you’re requesting…" />
+              <span className="t-hint">{form.details.length} chars (min 20) • Autosaved <Save size={11} aria-hidden="true" style={{ display: 'inline', verticalAlign: -1 }} /></span>
+              {errs.details && <span className="t-err">{errs.details}</span>}
+            </div>
+            <div className="t-card" style={{ padding: 14, background: '#f8fafc' }}>
+              <strong style={{ fontSize: '0.8rem' }}>Attach from SIS (one tap)</strong>
+              <label style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8, fontSize: '0.8rem' }}>
+                <input type="checkbox" checked={form.attachTranscript} onChange={(e) => setForm((f) => ({ ...f, attachTranscript: e.target.checked }))} /> Unofficial transcript — {activeUser?.name}
               </label>
-              <textarea
-                className={`input-modern form-textarea ${errors.details ? 'error' : ''}`}
-                rows={5}
-                placeholder="Explain the background of your academic concern, courses impacted, and specific relief requested from the Dean's Office..."
-                value={formData.details}
-                onChange={e => setFormData({ ...formData, details: e.target.value })}
-              />
-              <div className="char-counter">
-                {formData.details.length} characters (min 20)
-              </div>
-              {errors.details && <span className="field-error-msg">{errors.details}</span>}
-            </div>
-
-            {/* Simulated Document Checklist */}
-            <div className="document-checklist-box">
-              <h4 className="checklist-title">
-                <Info size={16} />
-                <span>Verified Student Record Attachments</span>
-              </h4>
-              <div className="checklist-items">
-                <label className="checkbox-item">
-                  <input
-                    type="checkbox"
-                    checked={formData.hasTranscript}
-                    onChange={e => setFormData({ ...formData, hasTranscript: e.target.checked })}
-                  />
-                  <span>Attach Unofficial SIS Academic Transcript (Auto-pulled for {activeUser?.name})</span>
-                </label>
-                <label className="checkbox-item">
-                  <input
-                    type="checkbox"
-                    checked={formData.hasPrerequisiteDoc}
-                    onChange={e => setFormData({ ...formData, hasPrerequisiteDoc: e.target.checked })}
-                  />
-                  <span>Include Prerequisite Degree Audit Syllabus Equivalence Sheet</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Summary Preview Box */}
-            <div className="submission-summary-preview">
-              <div className="summary-row">
-                <span className="summary-label">Student:</span>
-                <span className="summary-val">{activeUser?.name} ({activeUser?.studentId})</span>
-              </div>
-              <div className="summary-row">
-                <span className="summary-label">Category:</span>
-                <span className="summary-val">{formData.category}</span>
-              </div>
-              <div className="summary-row">
-                <span className="summary-label">Urgency & SLA:</span>
-                <span className="summary-val" style={{ textTransform: 'capitalize' }}>
-                  {formData.urgency} Priority
-                </span>
-              </div>
-              <div className="summary-row">
-                <span className="summary-label">Preferred Slot:</span>
-                <span className="summary-val">
-                  {formData.preferredMeetingSlot ? new Date(formData.preferredMeetingSlot).toLocaleString() : 'Pending'}
-                </span>
-              </div>
-            </div>
-
-            <div className="form-actions-bar">
-              <button type="button" className="btn-secondary" onClick={handlePrev}>
-                <ArrowLeft size={16} />
-                <span>Back</span>
-              </button>
-              <button type="submit" className="btn-primary submit-ticket-btn">
-                <Send size={16} />
-                <span>Submit Ticket to Dean's Queue</span>
-              </button>
+              <label style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6, fontSize: '0.8rem' }}>
+                <input type="checkbox" checked={form.attachAudit} onChange={(e) => setForm((f) => ({ ...f, attachAudit: e.target.checked }))} /> Degree-audit equivalence sheet
+              </label>
             </div>
           </div>
         )}
-      </form>
+
+        {step === 4 && (
+          <div>
+            <div className="t-card" style={{ padding: 16, background: '#f4f7ff', borderColor: '#c7d2fe' }}>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                <span className="t-code">{form.category}</span>
+                <span className="t-badge t-urgent-high">{form.urgency} • {slaPreview}</span>
+                <StatusBadge status="submitted" />
+              </div>
+              <h3 style={{ fontSize: '1.05rem' }}>{form.title || '(untitled)'}</h3>
+              <p style={{ fontSize: '0.82rem', color: 'var(--t-slate-600)', marginTop: 4 }}>{form.purposeOfVisit}</p>
+              <dl style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '6px 12px', marginTop: 12, fontSize: '0.8rem' }}>
+                <dt style={{ color: 'var(--t-slate-500)' }}>Student</dt><dd><strong>{activeUser?.name} ({activeUser?.studentId})</strong></dd>
+                <dt style={{ color: 'var(--t-slate-500)' }}>Slot</dt><dd><strong>{form.preferredMeetingSlot ? new Date(form.preferredMeetingSlot).toLocaleString() : '—'}</strong> • {form.meetingMode}</dd>
+                <dt style={{ color: 'var(--t-slate-500)' }}>Contact</dt><dd>{form.preferredContact}</dd>
+                <dt style={{ color: 'var(--t-slate-500)' }}>Docs</dt><dd>{[form.attachTranscript && 'Transcript', form.attachAudit && 'Audit sheet'].filter(Boolean).join(' + ') || 'None'}</dd>
+              </dl>
+              <p style={{ fontSize: '0.8rem', color: 'var(--t-slate-700)', marginTop: 10, background: '#fff', border: '1px solid var(--t-line)', borderRadius: 10, padding: 10 }}>{form.details}</p>
+            </div>
+          </div>
+        )}
+
+        <form onSubmit={submit}>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between', marginTop: 18, flexWrap: 'wrap' }}>
+            <button type="button" className="t-btn t-btn-secondary" disabled={step === 1} onClick={() => setStep((s) => Math.max(1, s - 1))}>
+              <ArrowLeft size={15} aria-hidden="true" /> Back
+            </button>
+            {step < 4
+              ? <button type="button" className="t-btn t-btn-primary" onClick={next}>Continue <ArrowRight size={15} aria-hidden="true" /></button>
+              : <button type="submit" className="t-btn t-btn-gold"><Send size={15} aria-hidden="true" /> Submit to Dean’s queue</button>}
+          </div>
+        </form>
+      </div>
+      <p style={{ fontSize: '0.74rem', color: 'var(--t-slate-500)' }}>Drafts never leave this browser. Submitting creates a live ticket with an audit trail staff can act on immediately.</p>
     </div>
   );
 };

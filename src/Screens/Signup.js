@@ -2,147 +2,80 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePortal } from '../context/PortalContext';
 import { addStudent } from '../services/portalStorage';
-import { Mail, Lock, User, BookOpen, ArrowRight, ArrowLeft } from 'lucide-react';
+import { User, Mail, BookOpen, Lock, ArrowRight } from 'lucide-react';
 import DemoRoleSwitcher from '../components/common/DemoRoleSwitcher';
 import ToastContainer from '../components/common/ToastContainer';
 import ustplogo from '../assets/ustplogo.png';
-import './styles/Login.css';
+import campusImg from '../assets/ustp.jpg';
+
+const PROGRAMS = ['BS Computer Science', 'BS Information Technology', 'BS Cybersecurity', 'BS Electrical Engineering', 'BS Architecture', 'MS Artificial Intelligence'];
+const YEARS = ['1st Year - Freshman', '2nd Year - Sophomore', '3rd Year - Junior', '4th Year - Senior'];
 
 const SignUp = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [program, setProgram] = useState('BS Computer Science');
-  const [yearOfStudy, setYearOfStudy] = useState('1st Year - Freshman');
-  const [password, setPassword] = useState('');
-  const { showToast, reloadData, switchPersona } = usePortal();
+  const [form, setForm] = useState({ name: '', email: '', program: PROGRAMS[0], yearOfStudy: YEARS[0], password: '' });
+  const { reloadData, switchPersona } = usePortal();
   const navigate = useNavigate();
 
-  const handleSignUp = (e) => {
+  const submit = (e) => {
     e.preventDefault();
-    if (!name || !email) return;
-
-    const studentObj = addStudent({
-      name,
-      email,
-      program,
-      yearOfStudy,
-      role: 'undergraduate'
-    });
-
+    addStudent({ name: form.name, email: form.email, program: form.program, yearOfStudy: form.yearOfStudy, role: 'undergraduate' });
     reloadData();
-    showToast(`Account registered for ${studentObj.name}!`, 'success');
     switchPersona('student');
     navigate('/dashboard');
   };
 
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
   return (
-    <div className="login-campus-page">
+    <div className="t-auth">
       <ToastContainer />
       <DemoRoleSwitcher />
-
-      <div className="login-frosted-card card-frosted">
-        <Link to="/login" className="login-back-link">
-          <ArrowLeft size={14} />
-          <span>Back to Sign In</span>
-        </Link>
-
-        <div className="login-brand-box">
-          <img src={ustplogo} alt="USTP Logo" className="login-ustp-img" />
-          <h1 className="login-main-title">Register Account</h1>
-          <p className="login-main-sub">USTP Student Academic Assistance</p>
+      <aside className="t-auth-panel" aria-label="Campus">
+        <img className="bg" src={campusImg} alt="USTP campus" />
+        <div className="t-auth-panel-content">
+          <img src={ustplogo} alt="USTP seal" style={{ width: 52, height: 52, objectFit: 'contain', background: '#fff', borderRadius: 12, padding: 6 }} />
+          <h1 style={{ fontSize: '1.9rem', marginTop: 14 }}>Join the queue<br />in <span style={{ color: '#ffd66b' }}>30 seconds.</span></h1>
+          <p style={{ color: '#c6d3e8', marginTop: 10 }}>Profiles are stored locally for the showcase — no email verification, no waiting. You’ll land straight in the student workspace.</p>
         </div>
-
-        <form onSubmit={handleSignUp} className="login-compact-form">
-          <div className="form-field-group">
-            <label className="field-label">Full Name</label>
-            <div className="input-with-icon">
-              <User size={16} className="input-inner-icon" />
-              <input
-                type="text"
-                required
-                className="input-modern"
-                placeholder="e.g., Alex Morgan"
-                value={name}
-                onChange={e => setName(e.target.value)}
-              />
+      </aside>
+      <main className="t-auth-form-wrap">
+        <div className="t-card t-auth-card">
+          <Link to="/login" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--t-slate-500)' }}>← Back to sign in</Link>
+          <h2 style={{ fontSize: '1.5rem', marginTop: 10, color: 'var(--t-navy-950)' }}>Create student profile</h2>
+          <p style={{ fontSize: '0.84rem', color: 'var(--t-slate-500)', marginTop: 4 }}>Showcase-only. Saved to this browser.</p>
+          <form onSubmit={submit} style={{ marginTop: 14 }}>
+            <div className="t-field">
+              <label className="t-label" htmlFor="su-name">Full name <span className="t-req">*</span></label>
+              <div className="t-input-icon"><User size={16} aria-hidden="true" /><input id="su-name" className="t-input" required value={form.name} onChange={set('name')} placeholder="e.g. Alex Morgan" /></div>
             </div>
-          </div>
-
-          <div className="form-field-group">
-            <label className="field-label">Institutional Email</label>
-            <div className="input-with-icon">
-              <Mail size={16} className="input-inner-icon" />
-              <input
-                type="email"
-                required
-                className="input-modern"
-                placeholder="student@demo.edu"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-              />
+            <div className="t-field">
+              <label className="t-label" htmlFor="su-email">Institutional email <span className="t-req">*</span></label>
+              <div className="t-input-icon"><Mail size={16} aria-hidden="true" /><input id="su-email" className="t-input" type="email" required value={form.email} onChange={set('email')} placeholder="you@demo.edu" /></div>
             </div>
-          </div>
-
-          <div className="form-field-group">
-            <label className="field-label">Degree Program</label>
-            <div className="input-with-icon">
-              <BookOpen size={16} className="input-inner-icon" />
-              <select
-                className="select-modern"
-                style={{ paddingLeft: '36px' }}
-                value={program}
-                onChange={e => setProgram(e.target.value)}
-              >
-                <option value="BS Computer Science">BS Computer Science</option>
-                <option value="BS Information Technology">BS Information Technology</option>
-                <option value="BS Cybersecurity">BS Cybersecurity</option>
-                <option value="BS Electrical Engineering">BS Electrical Engineering</option>
-                <option value="BS Architecture">BS Architecture</option>
-                <option value="MS Artificial Intelligence">MS Artificial Intelligence</option>
-              </select>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div className="t-field">
+                <label className="t-label" htmlFor="su-prog">Program</label>
+                <div className="t-input-icon"><BookOpen size={16} aria-hidden="true" />
+                  <select id="su-prog" className="t-select" style={{ paddingLeft: 38 }} value={form.program} onChange={set('program')}>
+                    {PROGRAMS.map((p) => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="t-field">
+                <label className="t-label" htmlFor="su-year">Year</label>
+                <select id="su-year" className="t-select" value={form.yearOfStudy} onChange={set('yearOfStudy')}>
+                  {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </div>
             </div>
-          </div>
-
-          <div className="form-field-group">
-            <label className="field-label">Year of Study</label>
-            <select
-              className="select-modern"
-              value={yearOfStudy}
-              onChange={e => setYearOfStudy(e.target.value)}
-            >
-              <option value="1st Year - Freshman">1st Year - Freshman</option>
-              <option value="2nd Year - Sophomore">2nd Year - Sophomore</option>
-              <option value="3rd Year - Junior">3rd Year - Junior</option>
-              <option value="4th Year - Senior">4th Year - Senior</option>
-            </select>
-          </div>
-
-          <div className="form-field-group">
-            <label className="field-label">Password</label>
-            <div className="input-with-icon">
-              <Lock size={16} className="input-inner-icon" />
-              <input
-                type="password"
-                required
-                className="input-modern"
-                placeholder="••••••••"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-              />
+            <div className="t-field">
+              <label className="t-label" htmlFor="su-pass">Password <span className="t-req">*</span></label>
+              <div className="t-input-icon"><Lock size={16} aria-hidden="true" /><input id="su-pass" className="t-input" type="password" required value={form.password} onChange={set('password')} placeholder="Anything works in demo" /></div>
             </div>
-          </div>
-
-          <button type="submit" className="btn-primary login-submit-btn">
-            <span>Create Profile</span>
-            <ArrowRight size={15} />
-          </button>
-        </form>
-
-        <div className="login-bottom-links">
-          <span>Already registered?</span>
-          <Link to="/login" className="signup-text-link">Sign In</Link>
+            <button type="submit" className="t-btn t-btn-gold" style={{ width: '100%' }}>Create & enter workspace <ArrowRight size={16} aria-hidden="true" /></button>
+          </form>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

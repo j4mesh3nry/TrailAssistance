@@ -1,200 +1,66 @@
 import React from 'react';
 import { usePortal } from '../../context/PortalContext';
-import {
-  LayoutDashboard,
-  PlusCircle,
-  Ticket,
-  User,
-  Star,
-  ShieldAlert,
-  Users,
-  BarChart3,
-  Monitor,
-  ChevronLeft,
-  ChevronRight,
-  RotateCcw
-} from 'lucide-react';
 import ustplogo from '../../assets/ustplogo.png';
-import './styles/Sidebar.css';
 
-export const Sidebar = ({ 
-  currentView, 
-  onViewChange, 
-  collapsed, 
-  onToggleCollapse, 
-  mobileOpen, 
-  onCloseMobile,
-  mode = 'student' // 'student' or 'admin'
-}) => {
-  const { tickets, activeUser, switchPersona, handleResetDemoData } = usePortal();
+export const Sidebar = ({ title, subtitle, sections, currentView, onViewChange, footer }) => {
+  const { tickets, activeUser, personaType } = usePortal();
 
-  const studentActiveTickets = tickets.filter(t => 
-    t.studentEmail === activeUser?.email && t.status !== 'resolved'
-  ).length;
-
-  const adminPendingTickets = tickets.filter(t => 
-    t.status === 'submitted' || t.status === 'under_review'
-  ).length;
-
-  const studentNavItems = [
-    { key: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { key: 'newTicket', label: 'File Concern', icon: PlusCircle },
-    { 
-      key: 'myTickets', 
-      label: 'My Concerns', 
-      icon: Ticket, 
-      badge: studentActiveTickets > 0 ? studentActiveTickets : null 
-    },
-    { key: 'profile', label: 'Student Record', icon: User },
-    { key: 'feedback', label: 'Service Rating', icon: Star }
-  ];
-
-  const adminNavItems = [
-    { key: 'dashboard', label: 'Executive Metrics', icon: BarChart3 },
-    { 
-      key: 'tickets', 
-      label: 'Ticket Queue', 
-      icon: ShieldAlert,
-      badge: adminPendingTickets > 0 ? adminPendingTickets : null 
-    },
-    { key: 'students', label: 'Student Directory', icon: Users },
-    { key: 'ratings', label: 'Service Reviews', icon: Star }
-  ];
-
-  const navItems = mode === 'admin' ? adminNavItems : studentNavItems;
+  const withCounts = (items) => items.map((item) => {
+    if (item.countKey === 'studentActive') {
+      const n = tickets.filter((t) => t.studentEmail === activeUser?.email && t.status !== 'resolved').length;
+      return { ...item, count: n || null };
+    }
+    if (item.countKey === 'adminActive') {
+      const n = tickets.filter((t) => t.status === 'submitted' || t.status === 'under_review').length;
+      return { ...item, count: n || null };
+    }
+    return item;
+  });
 
   return (
-    <>
-      {mobileOpen && (
-        <div className="sidebar-backdrop" onClick={onCloseMobile} />
-      )}
-
-      <aside className={`sidebar-wrapper ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
-        {/* Brand Header */}
-        <div className="sidebar-header">
-          <div className="sidebar-brand-group">
-            <img src={ustplogo} alt="USTP Logo" className="sidebar-logo-img" />
-            {!collapsed && (
-              <div className="sidebar-brand-text">
-                <span className="sidebar-brand-title">TrailAssistance</span>
-                <span className="sidebar-brand-sub">USTP Dean's Office</span>
-              </div>
-            )}
-          </div>
-          <button 
-            className="sidebar-collapse-btn"
-            onClick={onToggleCollapse}
-            aria-label="Toggle sidebar collapse"
-          >
-            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-          </button>
+    <aside className="t-sidebar" aria-label={title}>
+      <div className="t-brand">
+        <img src={ustplogo} alt="USTP seal" />
+        <div>
+          <div className="t-brand-name">TrailAssistance</div>
+          <div className="t-brand-sub">{subtitle || 'USTP Dean\u2019s Office'}</div>
         </div>
-
-        {/* Minimalist User Pill */}
-        {!collapsed && (
-          <div className="sidebar-user-pill">
-            <div className="pill-dot" />
-            <div className="pill-text">
-              <span className="pill-name">{activeUser?.name}</span>
-              <span className="pill-role">
-                {mode === 'admin' ? "Dean of College" : activeUser?.program || "Undergraduate"}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Main Navigation */}
-        <nav className="sidebar-nav">
-          <ul className="nav-list">
-            {navItems.map(item => {
+      </div>
+      <nav className="t-nav">
+        {sections.map((sec, si) => (
+          <div key={si}>
+            {sec.label && <div className="t-nav-label">{sec.label}</div>}
+            {withCounts(sec.items).map((item) => {
               const Icon = item.icon;
-              const isActive = currentView === item.key;
+              const active = currentView === item.key;
               return (
-                <li key={item.key}>
-                  <button
-                    className={`nav-item-btn ${isActive ? 'active' : ''}`}
-                    onClick={() => {
-                      onViewChange(item.key);
-                      if (mobileOpen) onCloseMobile();
-                    }}
-                    title={collapsed ? item.label : undefined}
-                  >
-                    <Icon size={17} className="nav-item-icon" />
-                    {!collapsed && <span className="nav-item-label">{item.label}</span>}
-                    {!collapsed && item.badge && (
-                      <span className="nav-item-badge">
-                        {item.badge}
-                      </span>
-                    )}
-                  </button>
-                </li>
+                <button
+                  key={item.key}
+                  type="button"
+                  className={`t-nav-btn ${active ? 'active' : ''}`}
+                  onClick={() => onViewChange(item.key)}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  <Icon size={18} aria-hidden="true" />
+                  <span>{item.label}</span>
+                  {item.count != null && <span className="t-nav-count">{item.count}</span>}
+                </button>
               );
             })}
-          </ul>
-
-          <div className="sidebar-nav-divider" />
-
-          {/* Quick Persona Switcher Links */}
-          <ul className="nav-list">
-            {mode === 'student' ? (
-              <li>
-                <button
-                  className="nav-item-btn secondary"
-                  onClick={() => switchPersona('admin')}
-                  title={collapsed ? "Dean's Console" : undefined}
-                >
-                  <ShieldAlert size={17} className="nav-item-icon" />
-                  {!collapsed && <span className="nav-item-label">Dean's Console</span>}
-                </button>
-              </li>
-            ) : (
-              <li>
-                <button
-                  className="nav-item-btn secondary"
-                  onClick={() => switchPersona('student')}
-                  title={collapsed ? "Student Portal" : undefined}
-                >
-                  <User size={17} className="nav-item-icon" />
-                  {!collapsed && <span className="nav-item-label">Student Portal</span>}
-                </button>
-              </li>
-            )}
-            <li>
-              <button
-                className="nav-item-btn secondary"
-                onClick={() => switchPersona('kiosk')}
-                title={collapsed ? "Lobby Kiosk" : undefined}
-              >
-                <Monitor size={17} className="nav-item-icon" />
-                {!collapsed && <span className="nav-item-label">Lobby Kiosk</span>}
-              </button>
-            </li>
-          </ul>
-        </nav>
-
-        {/* Footer */}
-        <div className="sidebar-footer">
-          {!collapsed ? (
-            <button 
-              className="sidebar-reset-btn"
-              onClick={handleResetDemoData}
-              title="Reset mock data to initial state"
-            >
-              <RotateCcw size={13} />
-              <span>Reset Demo Data</span>
-            </button>
-          ) : (
-            <button 
-              className="sidebar-icon-reset"
-              onClick={handleResetDemoData}
-              title="Reset Demo Data"
-            >
-              <RotateCcw size={14} />
-            </button>
-          )}
+          </div>
+        ))}
+      </nav>
+      <div className="t-side-foot">
+        <div className="t-user-chip">
+          <span className="t-avatar sm" aria-hidden="true">{activeUser?.avatar || (personaType === 'admin' ? 'SV' : 'AM')}</span>
+          <div style={{ minWidth: 0 }}>
+            <span className="t-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{activeUser?.name || 'Demo user'}</span>
+            <span className="t-role">{personaType === 'admin' ? 'College Dean' : personaType === 'kiosk' ? 'Lobby terminal' : activeUser?.program || 'Student'}</span>
+          </div>
         </div>
-      </aside>
-    </>
+        {footer}
+      </div>
+    </aside>
   );
 };
 

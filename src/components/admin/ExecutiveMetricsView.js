@@ -1,283 +1,95 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { Inbox, Clock, BadgeCheck, Star, Siren, ArrowRight, TrendingUp } from 'lucide-react';
 import { usePortal } from '../../context/PortalContext';
-import { 
-  BarChart3, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle, 
-  TrendingUp, 
-  Star, 
-  ShieldAlert, 
-  ChevronRight,
-  Award
-} from 'lucide-react';
-import { StatusBadge } from '../common/StatusBadge';
-import { UrgencyBadge } from '../common/UrgencyBadge';
-import './styles/AdminViews.css';
+import { PageHeader } from '../common/PageHeader';
+import StatusBadge from '../common/StatusBadge';
+import UrgencyBadge from '../common/UrgencyBadge';
+import { getSlaInfo } from '../../services/portalStorage';
 
-export const ExecutiveMetricsView = ({ onNavigate }) => {
+export const ExecutiveMetricsView = ({ onOpenQueue, onOpenTicket }) => {
   const { analytics, tickets, ratings } = usePortal();
 
-  // Categories for chart breakdown
-  const categoryEntries = Object.entries(analytics.categoryCounts || {});
-  const maxCategoryCount = Math.max(...categoryEntries.map(([, count]) => count), 1);
-
-  // Recent 5 tickets
-  const recentTickets = tickets.slice(0, 5);
+  const breaches = useMemo(() => tickets.filter((t) => t.status !== 'resolved' && getSlaInfo(t).isBreach), [tickets]);
+  const urgentOpen = useMemo(() => tickets.filter((t) => t.status !== 'resolved' && (t.urgency === 'urgent' || t.urgency === 'high')), [tickets]);
+  const recent = useMemo(() => [...tickets].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 5), [tickets]);
+  const cats = Object.entries(analytics?.categoryCounts || {}).sort((a, b) => b[1] - a[1]);
+  const maxCat = Math.max(1, ...cats.map(([, n]) => n));
 
   return (
-    <div className="admin-view-container">
-      {/* Executive Welcome Bar */}
-      <div className="admin-exec-header card-modern">
-        <div className="exec-header-left">
-          <div className="exec-dean-badge">
-            <Award size={14} />
-            <span>Executive Operations Console &bull; Academic Year 2026-2027</span>
+    <div>
+      <PageHeader
+        kicker="Live • A.Y. 2026–2027"
+        title="Morning briefing for the Dean"
+        sub="What needs you first, where the queue stands, and what students are saying — in one screen."
+        actions={
+          <>
+            <button type="button" className="t-btn t-btn-primary" onClick={onOpenQueue}><Inbox size={16} aria-hidden="true" /> Open triage ({analytics?.pendingTickets ?? 0})</button>
+          </>
+        }
+      />
+
+      {breaches.length > 0 && (
+        <div className="t-card t-card-pad" role="alert" style={{ marginBottom: 12, borderColor: '#fecdd3', background: '#fff1f2', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span className="t-kpi-icon" style={{ background: '#be123c', color: '#fff' }}><Siren size={18} aria-hidden="true" /></span>
+          <div style={{ flex: '1 1 260px' }}>
+            <strong style={{ fontSize: '0.88rem' }}>{breaches.length} SLA breach{breaches.length > 1 ? 'es' : ''} need a decision today</strong>
+            <p style={{ fontSize: '0.78rem', color: '#881337' }}>{breaches.slice(0, 3).map((t) => t.ticketNumber).join(' • ')}{breaches.length > 3 ? ` +${breaches.length - 3} more` : ''}</p>
           </div>
-          <h1 className="exec-title">Dean's Oversight & Student Concern Analytics</h1>
-          <p className="exec-subtitle">
-            Live queue monitoring, faculty advising workload allocation, and student petition resolution velocity.
-          </p>
+          <button type="button" className="t-btn t-btn-danger t-btn-sm" onClick={onOpenQueue}>Triage now <ArrowRight size={14} aria-hidden="true" /></button>
         </div>
-        <div className="exec-header-actions">
-          <button 
-            className="btn-primary" 
-            onClick={() => onNavigate('tickets')}
-          >
-            <ShieldAlert size={16} />
-            <span>Open Ticket Operations ({analytics.pendingTickets} Active)</span>
-          </button>
-        </div>
+      )}
+
+      <div className="t-grid-kpi">
+        {[
+          { label: 'Total requests', num: analytics?.totalTickets ?? 0, sub: 'Across 6 categories', tag: '+12% this term', cls: 't-trend-up', Icon: Inbox, bg: '#eef2ff', fg: '#4338ca' },
+          { label: 'Needs triage', num: analytics?.pendingTickets ?? 0, sub: `${analytics?.submittedTickets ?? 0} new • ${analytics?.underReviewTickets ?? 0} in review`, tag: `${urgentOpen.length} urgent/high`, cls: 't-trend-warn', Icon: Clock, bg: '#fffbeb', fg: '#b45309' },
+          { label: 'Resolution rate', num: `${analytics?.resolutionRate ?? 0}%`, sub: `${analytics?.resolvedTickets ?? 0} signed & closed`, tag: '+4.2 vs SLA', cls: 't-trend-up', Icon: BadgeCheck, bg: '#ecfdf5', fg: '#047857' },
+          { label: 'Satisfaction', num: `★ ${analytics?.avgRating ?? '4.8'}`, sub: `${ratings.length} verified reviews`, tag: '98% positive', cls: 't-trend-up', Icon: Star, bg: '#f0f9ff', fg: '#0369a1' },
+        ].map((k) => (
+          <div key={k.label} className="t-card t-kpi">
+            <div className="t-kpi-top"><span className="t-kpi-label">{k.label}</span><span className="t-kpi-icon" style={{ background: k.bg, color: k.fg }}><k.Icon size={18} aria-hidden="true" /></span></div>
+            <div className="t-kpi-num">{k.num}</div>
+            <div className="t-kpi-sub">{k.sub}</div>
+            <div style={{ marginTop: 8 }}><span className={`t-kpi-trend ${k.cls}`}><TrendingUp size={11} aria-hidden="true" style={{ display: 'inline', verticalAlign: -1 }} /> {k.tag}</span></div>
+          </div>
+        ))}
       </div>
 
-      {/* KPI Cards Grid */}
-      <div className="admin-kpi-grid">
-        {/* Total Inquiries */}
-        <div className="card-modern kpi-card">
-          <div className="kpi-top">
-            <span className="kpi-label">Total Inquiries Logged</span>
-            <div className="kpi-icon-box indigo">
-              <BarChart3 size={18} />
+      <div className="t-grid-2">
+        <div className="t-card t-card-pad">
+          <h3 className="t-section-title">Demand by category</h3>
+          <p className="t-section-sub">Where to staff office hours next week.</p>
+          {cats.map(([name, n]) => (
+            <div key={name} className="t-bar-row">
+              <span className="t-bar-name">{name}</span>
+              <span className="t-bar-track"><span className="t-bar-fill" style={{ width: `${(n / maxCat) * 100}%` }} /></span>
+              <span className="t-bar-val">{n} • {Math.round((n / (analytics?.totalTickets || 1)) * 100)}%</span>
             </div>
-          </div>
-          <div className="kpi-value-row">
-            <span className="kpi-number">{analytics.totalTickets}</span>
-            <span className="kpi-trend positive">
-              <TrendingUp size={13} /> +12% this term
-            </span>
-          </div>
-          <p className="kpi-footer">Across all 6 academic divisions</p>
-        </div>
-
-        {/* Pending Tickets */}
-        <div className="card-modern kpi-card">
-          <div className="kpi-top">
-            <span className="kpi-label">Active Queue Backlog</span>
-            <div className="kpi-icon-box amber">
-              <AlertCircle size={18} />
-            </div>
-          </div>
-          <div className="kpi-value-row">
-            <span className="kpi-number">{analytics.pendingTickets}</span>
-            <span className="kpi-chip urgent">
-              {analytics.urgencyCounts?.urgent || 0} Urgent
-            </span>
-          </div>
-          <p className="kpi-footer">
-            {analytics.submittedTickets} Submitted, {analytics.underReviewTickets} Under Review
-          </p>
-        </div>
-
-        {/* Resolution Rate */}
-        <div className="card-modern kpi-card">
-          <div className="kpi-top">
-            <span className="kpi-label">Resolution Efficiency Rate</span>
-            <div className="kpi-icon-box emerald">
-              <CheckCircle2 size={18} />
-            </div>
-          </div>
-          <div className="kpi-value-row">
-            <span className="kpi-number">{analytics.resolutionRate}%</span>
-            <span className="kpi-trend positive">
-              <TrendingUp size={13} /> +4.2% vs SLA
-            </span>
-          </div>
-          <p className="kpi-footer">
-            {analytics.resolvedTickets} resolved of {analytics.totalTickets} total petitions
-          </p>
-        </div>
-
-        {/* Average Wait Time */}
-        <div className="card-modern kpi-card">
-          <div className="kpi-top">
-            <span className="kpi-label">Average Wait / SLA Time</span>
-            <div className="kpi-icon-box sky">
-              <Clock size={18} />
-            </div>
-          </div>
-          <div className="kpi-value-row">
-            <span className="kpi-number">{analytics.avgResolutionDays}</span>
-            <span className="kpi-trend neutral">
-              {analytics.avgWaitTimeHours} first response
-            </span>
-          </div>
-          <p className="kpi-footer">Standard university SLA target: 3.0 days</p>
-        </div>
-      </div>
-
-      {/* Analytics Breakdown Row: Categories & Urgencies */}
-      <div className="analytics-charts-grid">
-        {/* Category Breakdown Card */}
-        <div className="card-modern chart-breakdown-card">
-          <div className="chart-card-header">
-            <div>
-              <h3 className="chart-title">Petitions by Concern Classification</h3>
-              <p className="chart-sub">Distribution of academic assistance requests</p>
-            </div>
-            <span className="chart-badge">Active Breakdown</span>
-          </div>
-
-          <div className="category-bars-list">
-            {categoryEntries.map(([category, count]) => {
-              const percentage = Math.round((count / analytics.totalTickets) * 100);
-              return (
-                <div key={category} className="cat-bar-item">
-                  <div className="cat-bar-info">
-                    <span className="cat-bar-name">{category}</span>
-                    <span className="cat-bar-count">{count} tickets ({percentage}%)</span>
-                  </div>
-                  <div className="cat-bar-track">
-                    <div 
-                      className="cat-bar-fill" 
-                      style={{ width: `${(count / maxCategoryCount) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+          ))}
+          <h3 className="t-section-title" style={{ marginTop: 16 }}>Urgency mix</h3>
+          <div className="t-chip-row" style={{ marginTop: 8 }}>
+            {['urgent', 'high', 'medium', 'low'].map((u) => (
+              <span key={u} className={`t-badge t-urgent-${u}`}>{u}: {analytics?.urgencyCounts?.[u] ?? 0}</span>
+            ))}
           </div>
         </div>
-
-        {/* Urgency & Satisfaction Split Card */}
-        <div className="card-modern chart-breakdown-card">
-          <div className="chart-card-header">
-            <div>
-              <h3 className="chart-title">Urgency Level & Student Satisfaction</h3>
-              <p className="chart-sub">SLA prioritization & quality feedback rating</p>
-            </div>
-            <div className="rating-pill-display">
-              <Star size={14} className="star-fill" />
-              <span>{analytics.avgRating} / 5.0</span>
-            </div>
+        <div className="t-card t-card-pad">
+          <h3 className="t-section-title">Fresh intake — act or assign</h3>
+          <p className="t-section-sub">Most recently touched requests.</p>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {recent.map((t) => (
+              <button key={t.id} type="button" onClick={() => onOpenTicket(t.ticketNumber)} style={{ display: 'flex', gap: 10, alignItems: 'center', background: 'none', border: 'none', borderBottom: '1px solid var(--t-line-2)', padding: '10px 2px', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span className="t-code">{t.ticketNumber}</span><StatusBadge status={t.status} /><UrgencyBadge urgency={t.urgency} />
+                  </span>
+                  <span className="t-cell-main" style={{ marginTop: 4, fontSize: '0.82rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.title}</span>
+                  <span className="t-cell-sub">{t.studentName} • {t.assignedStaff}</span>
+                </span>
+                <ArrowRight size={15} aria-hidden="true" style={{ color: '#94a3b8', flexShrink: 0 }} />
+              </button>
+            ))}
           </div>
-
-          <div className="urgency-metrics-grid">
-            <div className="urg-metric-box urgent">
-              <span className="urg-metric-val">{analytics.urgencyCounts?.urgent || 0}</span>
-              <span className="urg-metric-lbl">Critical Urgency</span>
-              <span className="urg-metric-sla">SLA: Same-Day</span>
-            </div>
-
-            <div className="urg-metric-box high">
-              <span className="urg-metric-val">{analytics.urgencyCounts?.high || 0}</span>
-              <span className="urg-metric-lbl">High Priority</span>
-              <span className="urg-metric-sla">SLA: 24–48h</span>
-            </div>
-
-            <div className="urg-metric-box medium">
-              <span className="urg-metric-val">{analytics.urgencyCounts?.medium || 0}</span>
-              <span className="urg-metric-lbl">Medium</span>
-              <span className="urg-metric-sla">SLA: 3–4 Days</span>
-            </div>
-
-            <div className="urg-metric-box low">
-              <span className="urg-metric-val">{analytics.urgencyCounts?.low || 0}</span>
-              <span className="urg-metric-lbl">Low</span>
-              <span className="urg-metric-sla">SLA: 5–7 Days</span>
-            </div>
-          </div>
-
-          <div className="satisfaction-highlight-box">
-            <div className="sat-icon-circle">
-              <Award size={20} />
-            </div>
-            <div className="sat-text-group">
-              <h4>98.4% Positive Recruiter & Student Rating</h4>
-              <p>Based on {ratings.length} verified submissions in the student feedback audit ledger.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Queue Stream */}
-      <div className="card-modern recent-tickets-table-card">
-        <div className="table-card-header">
-          <div>
-            <h3 className="chart-title">Live Queue Intake Stream</h3>
-            <p className="chart-sub">Recently filed student petitions awaiting action or audit updates</p>
-          </div>
-          <button 
-            className="btn-secondary view-all-btn"
-            onClick={() => onNavigate('tickets')}
-          >
-            <span>Manage All Tickets</span>
-            <ChevronRight size={16} />
-          </button>
-        </div>
-
-        <div className="table-responsive-wrapper">
-          <table className="modern-data-table">
-            <thead>
-              <tr>
-                <th>Ticket ID</th>
-                <th>Student</th>
-                <th>Subject / Concern</th>
-                <th>Category</th>
-                <th>Urgency</th>
-                <th>Status</th>
-                <th>Assigned Officer</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentTickets.map(ticket => (
-                <tr key={ticket.id}>
-                  <td>
-                    <span className="code-cell">{ticket.ticketNumber}</span>
-                  </td>
-                  <td>
-                    <div className="student-cell">
-                      <span className="student-name">{ticket.studentName}</span>
-                      <span className="student-id">{ticket.studentId}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className="concern-title-cell">{ticket.title}</span>
-                  </td>
-                  <td>
-                    <span className="category-tag-cell">{ticket.category}</span>
-                  </td>
-                  <td>
-                    <UrgencyBadge urgency={ticket.urgency} />
-                  </td>
-                  <td>
-                    <StatusBadge status={ticket.status} />
-                  </td>
-                  <td>
-                    <span className="staff-cell">{ticket.assignedStaff}</span>
-                  </td>
-                  <td>
-                    <button 
-                      className="btn-ghost action-btn"
-                      onClick={() => onNavigate('tickets')}
-                    >
-                      Inspect
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

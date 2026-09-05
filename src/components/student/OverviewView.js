@@ -1,187 +1,127 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { FilePlus2, Inbox, CalendarClock, BadgeCheck, Clock, ArrowRight, MapPin, Activity, Star } from 'lucide-react';
 import { usePortal } from '../../context/PortalContext';
-import { 
-  Sparkles, 
-  PlusCircle, 
-  Ticket, 
-  Calendar, 
-  CheckCircle2, 
-  AlertCircle, 
-  Clock, 
-  ArrowRight,
-  GraduationCap,
-  ShieldAlert,
-  ChevronRight
-} from 'lucide-react';
-import { LifecycleBar } from '../common/LifecycleBar';
-import { StatusBadge } from '../common/StatusBadge';
-import { UrgencyBadge } from '../common/UrgencyBadge';
-import './styles/StudentViews.css';
+import StatusBadge from '../common/StatusBadge';
+import UrgencyBadge from '../common/UrgencyBadge';
+import LifecycleBar from '../common/LifecycleBar';
+import { PageHeader } from '../common/PageHeader';
+import { getSlaInfo, getUpcomingAppointments } from '../../services/portalStorage';
+import campusImg from '../../assets/ustp.jpg';
 
-export const OverviewView = ({ onNavigate }) => {
-  const { activeUser, tickets } = usePortal();
+export const OverviewView = ({ onNavigate, onOpenTicket }) => {
+  const { activeUser, tickets, analytics, ratings } = usePortal();
+  const mine = useMemo(() => tickets.filter((t) => t.studentEmail === activeUser?.email), [tickets, activeUser]);
+  const active = mine.filter((t) => t.status !== 'resolved');
+  const done = mine.filter((t) => t.status === 'resolved');
+  const next = getUpcomingAppointments(tickets, activeUser?.email)[0] || null;
+  const latest = mine[0] || null;
 
-  // Filter user's tickets
-  const userTickets = tickets.filter(t => t.studentEmail === activeUser?.email);
-  const activeTickets = userTickets.filter(t => t.status !== 'resolved');
-  const resolvedTickets = userTickets.filter(t => t.status === 'resolved');
-  const latestTicket = userTickets[0] || null;
+  const activity = useMemo(() => {
+    const ev = [];
+    mine.forEach((t) => (t.timeline || []).slice(-2).forEach((e) => ev.push({ ...e, ticketNumber: t.ticketNumber })));
+    return ev.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 4);
+  }, [mine]);
+
+  const breaches = active.filter((t) => getSlaInfo(t).isBreach);
 
   return (
-    <div className="student-view-container">
-      {/* Welcome Hero Banner */}
-      <div className="student-hero-card">
-        <div className="hero-content">
-          <div className="hero-badge">
-            <Sparkles size={14} />
-            <span>Academic Year 2026–2027 &bull; Fall Term</span>
+    <div>
+      <PageHeader
+        kicker="USTP CDO • A.Y. 2026–2027"
+        title={`Kumusta, ${activeUser?.name?.split(' ')[0] || 'Trailblazer'} — your queue at a glance`}
+        sub={`${activeUser?.program || 'BS Computer Science'} • ${activeUser?.yearOfStudy || '4th Year'} • Adviser: ${activeUser?.advisor || 'Dr. Sarah Vance'}`}
+        actions={
+          <>
+            <button type="button" className="t-btn t-btn-gold" onClick={() => onNavigate('new')}><FilePlus2 size={16} aria-hidden="true" /> New request</button>
+            <button type="button" className="t-btn t-btn-secondary" onClick={() => onNavigate('requests')}><Inbox size={16} aria-hidden="true" /> Track ({active.length})</button>
+          </>
+        }
+      />
+
+      {/* hero with campus */}
+      <div className="t-card t-card-pad" style={{ position: 'relative', overflow: 'hidden', marginBottom: 14, borderColor: '#0a1930' }}>
+        <img src={campusImg} alt="" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.22 }} loading="lazy" />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(100deg, rgba(10,25,48,0.94), rgba(20,54,92,0.72) 55%, rgba(20,54,92,0.25))' }} aria-hidden="true" />
+        <div style={{ position: 'relative', display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ minWidth: 240, flex: '1 1 420px' }}>
+            <span className="t-badge t-status-scheduled"><MapPin size={11} aria-hidden="true" /> Dean’s Office • Rm 302B • Lapasan, CDO</span>
+            <h2 style={{ color: '#fff', fontSize: '1.35rem', marginTop: 10 }}>File once. Watch it move. Leave with a signature.</h2>
+            <p style={{ color: '#c6d3e8', fontSize: '0.85rem', marginTop: 6, maxWidth: 560 }}>Every request gets Submitted → Under review → Scheduled → Resolved with an SLA clock, an owner, and an audit trail you can show anyone.</p>
+            {breaches.length > 0 && <p style={{ marginTop: 8 }}><span className="t-badge t-breach">{breaches.length} SLA breach — nudge the desk</span></p>}
           </div>
-          <h1 className="hero-title">Welcome back, {activeUser?.name || 'Alex Morgan'}</h1>
-          <p className="hero-desc">
-            You are enrolled in <span className="highlight-text">{activeUser?.program || 'BS Computer Science'}</span> &bull; {activeUser?.yearOfStudy || '4th Year Senior'}. 
-            Academic Advisor: <strong>{activeUser?.advisor || 'Dr. Sarah Vance'}</strong>.
-          </p>
-          <div className="hero-actions">
-            <button 
-              className="btn-primary hero-btn"
-              onClick={() => onNavigate('newTicket')}
-            >
-              <PlusCircle size={16} />
-              <span>File Academic Concern</span>
-            </button>
-            <button 
-              className="btn-secondary hero-btn"
-              onClick={() => onNavigate('myTickets')}
-            >
-              <Ticket size={16} />
-              <span>Track Active Inquiries ({activeTickets.length})</span>
-            </button>
-          </div>
-        </div>
-        <div className="hero-stat-badge">
-          <div className="standing-chip">
-            <GraduationCap size={16} />
-            <span>{activeUser?.academicStanding || "Dean's Lister"}</span>
-          </div>
-          <div className="gpa-pill">
-            <span className="gpa-label">Cumulative GPA</span>
-            <span className="gpa-val">{activeUser?.gpa || '3.88'}</span>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 14, padding: '12px 16px', minWidth: 150 }}>
+              <div style={{ fontSize: '0.66rem', fontWeight: 800, letterSpacing: '0.07em', color: '#93a5c4' }}>STANDING</div>
+              <div style={{ color: '#fff', fontWeight: 800 }}>{activeUser?.academicStanding || "Dean's Lister"}</div>
+              <div style={{ color: '#ffd66b', fontWeight: 800, fontSize: '1.3rem', marginTop: 4 }}>{activeUser?.gpa || '3.88'} <span style={{ fontSize: '0.7rem', color: '#93a5c4' }}>/ 4.0</span></div>
+            </div>
+            <div style={{ background: '#ffd66b', borderRadius: 14, padding: '12px 16px', minWidth: 150, color: '#0a1930' }}>
+              <div style={{ fontSize: '0.66rem', fontWeight: 800, letterSpacing: '0.07em' }}>NEXT VISIT</div>
+              <div style={{ fontWeight: 800, marginTop: 2 }}>{next ? new Date(next.preferredMeetingSlot).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'None booked'}</div>
+              <div style={{ fontSize: '0.72rem', fontWeight: 600 }}>{next ? next.meetingMode : 'Book from a request'}</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Quick KPI Stat Cards */}
-      <div className="student-stats-grid">
-        <div className="card-modern stat-card">
-          <div className="stat-icon-wrapper amber">
-            <Clock size={20} />
+      <div className="t-grid-kpi">
+        {[
+          { label: 'In queue', num: active.length, sub: breaches.length ? `${breaches.length} breaching SLA` : 'All within SLA', trend: breaches.length ? 'SLA watch' : 'Healthy', cls: breaches.length ? 't-trend-warn' : 't-trend-up', Icon: Clock, bg: '#fffbeb', fg: '#b45309' },
+          { label: 'Resolved', num: done.length, sub: 'Signed memos in archive', trend: `${analytics?.resolutionRate ?? 0}% portal-wide`, cls: 't-trend-up', Icon: BadgeCheck, bg: '#ecfdf5', fg: '#047857' },
+          { label: 'Next visit', num: next ? new Date(next.preferredMeetingSlot).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '—', sub: next ? next.ticketNumber : 'No appointment yet', trend: next ? 'Confirmed' : 'Book one', cls: 't-trend-up', Icon: CalendarClock, bg: '#f0f9ff', fg: '#0369a1' },
+          { label: 'Satisfaction', num: `★ ${analytics?.avgRating ?? '4.8'}`, sub: `${ratings.length} verified reviews`, trend: 'Loved', cls: 't-trend-up', Icon: Star, bg: '#eef2ff', fg: '#4338ca' },
+        ].map((k) => (
+          <div key={k.label} className="t-card t-kpi">
+            <div className="t-kpi-top"><span className="t-kpi-label">{k.label}</span><span className="t-kpi-icon" style={{ background: k.bg, color: k.fg }}><k.Icon size={18} aria-hidden="true" /></span></div>
+            <div className="t-kpi-num">{k.num}</div>
+            <div className="t-kpi-sub">{k.sub}</div>
+            <div style={{ marginTop: 8 }}><span className={`t-kpi-trend ${k.cls}`}>{k.trend}</span></div>
           </div>
-          <div className="stat-content">
-            <span className="stat-value">{activeTickets.length}</span>
-            <span className="stat-label">In-Queue Concerns</span>
-          </div>
-          <div className="stat-footer-text">
-            {activeTickets.length > 0 ? 'Awaiting staff evaluation' : 'Queue cleared'}
-          </div>
-        </div>
-
-        <div className="card-modern stat-card">
-          <div className="stat-icon-wrapper emerald">
-            <CheckCircle2 size={20} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-value">{resolvedTickets.length}</span>
-            <span className="stat-label">Resolved Petitions</span>
-          </div>
-          <div className="stat-footer-text">Archived in clearance log</div>
-        </div>
-
-        <div className="card-modern stat-card">
-          <div className="stat-icon-wrapper sky">
-            <Calendar size={20} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-value">
-              {latestTicket?.preferredMeetingSlot ? 'Sept 8' : 'None'}
-            </span>
-            <span className="stat-label">Upcoming Consultation</span>
-          </div>
-          <div className="stat-footer-text">Dean's Office Room 302B</div>
-        </div>
-
-        <div className="card-modern stat-card">
-          <div className="stat-icon-wrapper indigo">
-            <ShieldAlert size={20} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-value">94%</span>
-            <span className="stat-label">Graduation Readiness</span>
-          </div>
-          <div className="stat-footer-text">1 Deficiency Pending Review</div>
-        </div>
+        ))}
       </div>
 
-      {/* Featured Active Tracker Preview */}
-      {latestTicket && (
-        <div className="card-modern active-ticket-tracker-card">
-          <div className="tracker-header">
-            <div className="tracker-title-group">
-              <span className="tracker-badge-id">Ticket #{latestTicket.ticketNumber}</span>
-              <h2 className="tracker-title">{latestTicket.title}</h2>
-              <div className="tracker-meta-row">
-                <StatusBadge status={latestTicket.status} />
-                <UrgencyBadge urgency={latestTicket.urgency} />
-                <span className="tracker-category-tag">{latestTicket.category}</span>
-                <span className="tracker-time-tag">Updated {new Date(latestTicket.updatedAt).toLocaleDateString()}</span>
+      <div className="t-grid-2">
+        <div className="t-card t-card-pad">
+          <h3 className="t-section-title">Spotlight — latest request</h3>
+          <p className="t-section-sub">Your most recent filing with live lifecycle.</p>
+          {!latest && <p style={{ fontSize: '0.84rem', color: 'var(--t-slate-500)' }}>No requests yet. File your first in ~3 minutes.</p>}
+          {latest && (
+            <>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                <span className="t-code">{latest.ticketNumber}</span>
+                <StatusBadge status={latest.status} />
+                <UrgencyBadge urgency={latest.urgency} />
+                <span className="t-badge t-status-submitted">{getSlaInfo(latest).dueLabel}</span>
               </div>
-            </div>
-            <button 
-              className="btn-secondary tracker-view-btn"
-              onClick={() => onNavigate('myTickets')}
-            >
-              <span>View Full Audit Timeline</span>
-              <ChevronRight size={16} />
-            </button>
-          </div>
-
-          <div className="tracker-lifecycle-box">
-            <LifecycleBar status={latestTicket.status} />
-          </div>
-
-          <div className="tracker-notes-preview">
-            <div className="notes-box-header">
-              <AlertCircle size={15} className="notes-alert-icon" />
-              <span>Latest Administrative Note &bull; Assigned: {latestTicket.assignedStaff}</span>
-            </div>
-            <p className="notes-box-text">
-              {latestTicket.timeline[latestTicket.timeline.length - 1]?.note || 'Processing under standard advising protocol.'}
-            </p>
-          </div>
+              <h4 style={{ margin: '10px 0 4px', fontSize: '1.02rem', color: 'var(--t-navy-950)' }}>{latest.title}</h4>
+              <p style={{ fontSize: '0.8rem', color: 'var(--t-slate-500)' }}>{latest.category} • Owner: {latest.assignedStaff}</p>
+              <div style={{ background: '#f8fafc', border: '1px solid var(--t-line)', borderRadius: 12, padding: '10px 14px', marginTop: 12 }}>
+                <LifecycleBar status={latest.status} />
+              </div>
+              <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+                <button type="button" className="t-btn t-btn-primary t-btn-sm" onClick={() => onOpenTicket(latest.ticketNumber)}>Open tracker <ArrowRight size={14} aria-hidden="true" /></button>
+                <button type="button" className="t-btn t-btn-secondary t-btn-sm" onClick={() => onNavigate('new')}>File another</button>
+              </div>
+            </>
+          )}
         </div>
-      )}
-
-      {/* Quick Access Grid */}
-      <div className="quick-access-grid">
-        <div className="card-modern quick-card" onClick={() => onNavigate('newTicket')}>
-          <div className="quick-card-icon-box">
-            <PlusCircle size={24} />
+        <div className="t-card t-card-pad">
+          <h3 className="t-section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} aria-hidden="true" /> Recent activity</h3>
+          <p className="t-section-sub">Handoffs across all your requests.</p>
+          {activity.length === 0 && <p style={{ fontSize: '0.82rem', color: 'var(--t-slate-500)' }}>Quiet for now — activity lands here the moment staff touch a ticket.</p>}
+          <div className="t-timeline">
+            {activity.map((e, i) => (
+              <div key={`${e.ticketNumber}-${i}`} className="t-tl-item">
+                <div className="t-tl-rail"><span className="t-tl-dot" /><span className="t-tl-line" /></div>
+                <div className="t-tl-body">
+                  <div className="t-tl-action">{e.action} • {e.ticketNumber}</div>
+                  <div className="t-tl-meta">{e.actor} • {e.timestamp ? new Date(e.timestamp).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}</div>
+                  <p className="t-tl-note">{e.note}</p>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="quick-card-content">
-            <h3>File a New Academic Concern</h3>
-            <p>Request course waivers, submit financial aid appeals, clearance sign-offs, or schedule dean advising.</p>
-          </div>
-          <ArrowRight size={18} className="quick-card-arrow" />
-        </div>
-
-        <div className="card-modern quick-card" onClick={() => onNavigate('profile')}>
-          <div className="quick-card-icon-box profile">
-            <GraduationCap size={24} />
-          </div>
-          <div className="quick-card-content">
-            <h3>Academic Standing & Record</h3>
-            <p>Review completed credit units, degree checklist, and verify pending clearance checklist holds.</p>
-          </div>
-          <ArrowRight size={18} className="quick-card-arrow" />
+          <button type="button" className="t-btn t-btn-ghost t-btn-sm" onClick={() => onNavigate('requests')}>View all requests <ArrowRight size={14} aria-hidden="true" /></button>
         </div>
       </div>
     </div>

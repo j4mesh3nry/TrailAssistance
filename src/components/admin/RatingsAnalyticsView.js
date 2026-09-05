@@ -1,135 +1,52 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { Star, TrendingUp, MessageSquare } from 'lucide-react';
 import { usePortal } from '../../context/PortalContext';
-import { Star } from 'lucide-react';
-import './styles/AdminViews.css';
+import { PageHeader } from '../common/PageHeader';
 
 export const RatingsAnalyticsView = () => {
   const { ratings, analytics } = usePortal();
-
-  // Rating distribution counts
-  const starCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-  ratings.forEach(r => {
-    const score = Math.round(Number(r.rating) || 5);
-    if (starCounts[score] !== undefined) starCounts[score] += 1;
-  });
+  const dist = useMemo(() => {
+    const d = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    ratings.forEach((r) => { const n = Math.round(Number(r.rating) || 5); if (d[n] !== undefined) d[n] += 1; });
+    return d;
+  }, [ratings]);
+  const max = Math.max(1, ...Object.values(dist));
 
   return (
-    <div className="admin-view-container">
-      {/* Header */}
-      <div className="tickets-management-header">
-        <div>
-          <h1 className="exec-title">Student Experience & Service Satisfaction</h1>
-          <p className="exec-subtitle">
-            Direct student sentiment analytics, counseling touchpoint evaluations, and institutional service feedback.
-          </p>
+    <div>
+      <PageHeader kicker="Voice of the student" title="Satisfaction insights" sub="Every rating lands here live — including the one you just submitted as a student." />
+      <div className="t-grid-3">
+        <div className="t-card t-card-pad" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '2.4rem', fontWeight: 800, fontFamily: 'var(--t-font-display)' }}>★ {analytics?.avgRating ?? '4.8'}</div>
+          <p style={{ fontSize: '0.78rem', color: 'var(--t-slate-500)' }}>{ratings.length} verified reviews • <span className="t-kpi-trend t-trend-up"><TrendingUp size={11} aria-hidden="true" style={{ display: 'inline', verticalAlign: -1 }} /> 98% positive</span></p>
+        </div>
+        <div className="t-card t-card-pad" style={{ gridColumn: 'span 2' }}>
+          <h3 className="t-section-title">Distribution</h3>
+          {[5, 4, 3, 2, 1].map((s) => (
+            <div key={s} className="t-bar-row">
+              <span className="t-bar-name">★ {s} stars</span>
+              <span className="t-bar-track"><span className="t-bar-fill" style={{ width: `${(dist[s] / max) * 100}%` }} /></span>
+              <span className="t-bar-val">{dist[s]} reviews</span>
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* Ratings Overview Row */}
-      <div className="ratings-overview-grid">
-        {/* Overall Score Box */}
-        <div className="card-modern rating-hero-score-card">
-          <span className="hero-score-label">Overall Experience Score</span>
-          <div className="hero-score-val">
-            <span>{analytics.avgRating}</span>
-            <span className="hero-score-base">/ 5.0</span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {ratings.map((r) => (
+          <div key={r.id} className="t-card t-card-pad">
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={{ display: 'flex', gap: 2 }}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} size={13} aria-hidden="true" style={{ color: i < Number(r.rating) ? '#f59e0b' : '#e2e8f0', fill: i < Number(r.rating) ? '#f59e0b' : 'none' }} />
+                ))}
+              </span>
+              <strong style={{ fontSize: '0.82rem' }}>{r.studentName}</strong>
+              <span style={{ fontSize: '0.7rem', color: 'var(--t-slate-500)' }}>{r.category} • {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : ''}</span>
+              <span className="t-badge t-status-resolved" style={{ marginLeft: 'auto' }}><MessageSquare size={11} aria-hidden="true" /> {r.waitTimeMinutes} min wait</span>
+            </div>
+            <p style={{ fontSize: '0.84rem', color: 'var(--t-slate-700)', marginTop: 8 }}>“{r.feedback}”</p>
           </div>
-          <div className="hero-stars-row">
-            {[1, 2, 3, 4, 5].map(s => (
-              <Star key={s} size={20} className="star-gold-fill" />
-            ))}
-          </div>
-          <p className="hero-score-footer">
-            Derived from <strong>{ratings.length}</strong> authenticated student ratings
-          </p>
-        </div>
-
-        {/* Breakdown by Stars */}
-        <div className="card-modern rating-breakdown-card">
-          <h3 className="chart-title" style={{ marginBottom: '14px' }}>Rating Distribution</h3>
-          <div className="star-bars-list">
-            {[5, 4, 3, 2, 1].map(stars => {
-              const count = starCounts[stars] || 0;
-              const percentage = ratings.length > 0 ? Math.round((count / ratings.length) * 100) : 0;
-              return (
-                <div key={stars} className="star-bar-row">
-                  <div className="star-row-label">
-                    <span>{stars}</span>
-                    <Star size={12} className="star-gold-fill" />
-                  </div>
-                  <div className="star-bar-track">
-                    <div className="star-bar-fill" style={{ width: `${percentage}%` }} />
-                  </div>
-                  <span className="star-bar-pct">{count} ({percentage}%)</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Ratings Feed */}
-      <div className="card-modern admin-table-card" style={{ marginTop: '24px' }}>
-        <div className="table-card-header">
-          <div>
-            <h3 className="chart-title">Student Review Ledger & Comments</h3>
-            <p className="chart-sub">Detailed evaluations with category touchpoints and timestamps</p>
-          </div>
-        </div>
-
-        <div className="table-responsive-wrapper">
-          <table className="modern-data-table">
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Touchpoint Category</th>
-                <th>Rating</th>
-                <th>Feedback & Praise Comments</th>
-                <th>Quality Tag</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ratings.map(r => (
-                <tr key={r.id}>
-                  <td>
-                    <div className="student-cell">
-                      <span className="student-name">{r.studentName}</span>
-                      <span className="student-id">{r.studentId}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className="category-tag-cell">{r.category}</span>
-                  </td>
-                  <td>
-                    <div className="stars-mini-display">
-                      {[1, 2, 3, 4, 5].map(s => (
-                        <Star 
-                          key={s} 
-                          size={13} 
-                          className={s <= r.rating ? 'star-gold-fill' : 'star-empty'} 
-                        />
-                      ))}
-                    </div>
-                  </td>
-                  <td>
-                    <p className="rating-feedback-text">{r.feedback}</p>
-                  </td>
-                  <td>
-                    <span className="response-quality-chip">
-                      {r.responseQuality || 'Outstanding'}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="date-cell">
-                      {new Date(r.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        ))}
       </div>
     </div>
   );

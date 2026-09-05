@@ -1,66 +1,30 @@
 import React from 'react';
-import { Check, Clock, Calendar, CheckCircle2, AlertCircle } from 'lucide-react';
-import './styles/LifecycleBar.css';
+import { Check, Clock, Search, CalendarCheck, BadgeCheck } from 'lucide-react';
 
 const STAGES = [
-  { key: 'submitted', label: 'Submitted', description: 'Ticket logged in queue', icon: Clock },
-  { key: 'under_review', label: 'Under Review', description: 'Advising evaluation', icon: AlertCircle },
-  { key: 'scheduled', label: 'Scheduled', description: 'Consultation confirmed', icon: Calendar },
-  { key: 'resolved', label: 'Resolved', description: 'Action signed & archived', icon: CheckCircle2 }
+  { key: 'submitted', label: 'Submitted', desc: 'Logged in queue', Icon: Clock },
+  { key: 'under_review', label: 'Under review', desc: 'Officer triage', Icon: Search },
+  { key: 'scheduled', label: 'Scheduled', desc: 'Visit confirmed', Icon: CalendarCheck },
+  { key: 'resolved', label: 'Resolved', desc: 'Signed & closed', Icon: BadgeCheck }
 ];
 
-export const LifecycleBar = ({ status, compact = false }) => {
-  const getStageIndex = (s) => {
-    switch (s) {
-      case 'submitted': return 0;
-      case 'under_review': return 1;
-      case 'scheduled': return 2;
-      case 'resolved': return 3;
-      default: return 0;
-    }
-  };
+const order = { submitted: 0, under_review: 1, scheduled: 2, resolved: 3 };
 
-  const currentIndex = getStageIndex(status);
-
+export const LifecycleBar = ({ status }) => {
+  const idx = order[status] ?? 0;
   return (
-    <div className={`lifecycle-wrapper ${compact ? 'compact' : ''}`}>
-      <div className="lifecycle-track">
-        {/* Progress Line */}
-        <div 
-          className="lifecycle-progress-line"
-          style={{ width: `${(currentIndex / (STAGES.length - 1)) * 100}%` }}
-        />
-        
-        {STAGES.map((stage, idx) => {
-          const isCompleted = idx < currentIndex;
-          const isCurrent = idx === currentIndex;
-          const isUpcoming = idx > currentIndex;
-          const Icon = stage.icon;
-
-          return (
-            <div 
-              key={stage.key} 
-              className={`lifecycle-step ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''} ${isUpcoming ? 'upcoming' : ''}`}
-            >
-              <div className="step-circle">
-                {isCompleted ? (
-                  <Check size={compact ? 12 : 16} strokeWidth={2.8} />
-                ) : (
-                  <Icon size={compact ? 12 : 16} strokeWidth={2} />
-                )}
-                {isCurrent && <span className="step-pulse-ring" />}
-              </div>
-              
-              {!compact && (
-                <div className="step-label-group">
-                  <span className="step-label">{stage.label}</span>
-                  <span className="step-desc">{stage.description}</span>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+    <div className="t-life" role="list" aria-label={`Lifecycle: ${status}`}>
+      {STAGES.map((s, i) => {
+        const cls = i < idx ? 'done' : i === idx ? 'now' : '';
+        const Icon = i < idx ? Check : s.Icon;
+        return (
+          <div key={s.key} role="listitem" aria-current={i === idx ? 'step' : undefined} className={`t-life-step ${cls}`}>
+            <span className="t-life-dot"><Icon size={16} aria-hidden="true" /></span>
+            <span className="t-life-name">{s.label}</span>
+            <span className="t-life-desc">{s.desc}</span>
+          </div>
+        );
+      })}
     </div>
   );
 };

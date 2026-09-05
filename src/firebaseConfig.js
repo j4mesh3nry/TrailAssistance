@@ -1,19 +1,23 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+// TrailAssistance — Zero-Config Showcase Mode (default)
+// ---------------------------------------------------------------------------
+// Production portfolio builds run fully offline on static hosting (Vercel)
+// using the LocalStorage mock repository in `src/services/portalStorage.js`.
+// No external database setup is required to review all student/admin/kiosk flows.
+//
+// Optional Firebase adapter:
+// - If you later want cloud persistence, provide env vars and lazy-import
+//   this module from your own service layer.
+// - Never hardcode API keys in a portfolio repo. Use:
+//     REACT_APP_FIREBASE_API_KEY, REACT_APP_FIREBASE_AUTH_DOMAIN, ...
+// - This file intentionally exports `null` adapters so static builds never
+//   attempt a network init and never leak credentials.
+//
+// Example (opt-in only):
+//   import { initializeApp } from 'firebase/app';
+//   const app = initializeApp({ apiKey: process.env.REACT_APP_FIREBASE_API_KEY, ... });
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCs5-5xJsLmQQavBmrObJon5-4sUqxFMp8",
-  authDomain: "expofront-3d484.firebaseapp.com",
-  projectId: "expofront-3d484",
-  storageBucket: "expofront-3d484.appspot.com",
-  messagingSenderId: "292845955801",
-  appId: "1:292845955801:web:f3ad717abd91fa4102ecc8",
-  measurementId: "G-5702WYQM03"
-};
+export const auth = null;
+export const db = null;
+export const isCloudPersistenceEnabled = false;
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore();
-
-export { auth, db };
+export default { auth, db, isCloudPersistenceEnabled };
