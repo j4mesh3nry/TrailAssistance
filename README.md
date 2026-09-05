@@ -1,6 +1,6 @@
 # TrailAssistance 2.0 &bull; USTP Academic Assistance OS
 
-[![Vercel Deployment](https://img.shields.io/badge/Deployment-Vercel%20Production-black?logo=vercel)](https://trail-assistance.vercel.app)
+[![Vercel Deployment](https://img.shields.io/badge/Deployment-Vercel%20Production-black?logo=vercel)](https://trail-assistance-xi.vercel.app/)
 [![React 18](https://img.shields.io/badge/Frontend-React%2018-blue?logo=react)](https://react.dev)
 [![React Router 7](https://img.shields.io/badge/Navigation-React%20Router%20v7-red?logo=reactrouter)](https://reactrouter.com)
 [![Lucide Icons](https://img.shields.io/badge/Design%20System-Lucide%20Icons-indigo)](https://lucide.dev)
