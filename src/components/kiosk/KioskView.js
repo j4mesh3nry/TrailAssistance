@@ -5,7 +5,6 @@ import {
   Search, 
   Printer, 
   Clock, 
-  GraduationCap, 
   ArrowLeft, 
   QrCode, 
   Building2, 
@@ -13,6 +12,7 @@ import {
 } from 'lucide-react';
 import { LifecycleBar } from '../common/LifecycleBar';
 import { StatusBadge } from '../common/StatusBadge';
+import ustplogo from '../../assets/ustplogo.png';
 import './styles/KioskView.css';
 
 export const KioskView = () => {
@@ -87,12 +87,10 @@ export const KioskView = () => {
       {/* Kiosk Top Bar */}
       <div className="kiosk-top-bar">
         <div className="kiosk-brand">
-          <div className="kiosk-brand-icon">
-            <GraduationCap size={24} />
-          </div>
+          <img src={ustplogo} alt="USTP Logo" className="kiosk-ustp-logo" />
           <div>
-            <h1 className="kiosk-title">Dean's Office Self-Service Kiosk</h1>
-            <p className="kiosk-sub">Terminal #01 &bull; Main Academic Complex, Level 3</p>
+            <h1 className="kiosk-title">USTP Dean's Office Assistance Kiosk</h1>
+            <p className="kiosk-sub">Self-Service Lobby Terminal &bull; Main Academic Complex</p>
           </div>
         </div>
 

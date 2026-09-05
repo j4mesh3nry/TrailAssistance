@@ -12,9 +12,9 @@ import {
   Monitor,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
-  GraduationCap
+  RotateCcw
 } from 'lucide-react';
+import ustplogo from '../../assets/ustplogo.png';
 import './styles/Sidebar.css';
 
 export const Sidebar = ({ 
@@ -28,7 +28,6 @@ export const Sidebar = ({
 }) => {
   const { tickets, activeUser, switchPersona, handleResetDemoData } = usePortal();
 
-  // Calculate badge counts
   const studentActiveTickets = tickets.filter(t => 
     t.studentEmail === activeUser?.email && t.status !== 'resolved'
   ).length;
@@ -39,36 +38,33 @@ export const Sidebar = ({
 
   const studentNavItems = [
     { key: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { key: 'newTicket', label: 'File New Concern', icon: PlusCircle, highlight: true },
+    { key: 'newTicket', label: 'File Concern', icon: PlusCircle },
     { 
       key: 'myTickets', 
-      label: 'My Concerns & Tickets', 
+      label: 'My Concerns', 
       icon: Ticket, 
-      badge: studentActiveTickets > 0 ? studentActiveTickets : null,
-      badgeVariant: 'urgent'
+      badge: studentActiveTickets > 0 ? studentActiveTickets : null 
     },
-    { key: 'profile', label: 'Student Profile', icon: User },
-    { key: 'feedback', label: 'Service Feedback', icon: Star }
+    { key: 'profile', label: 'Student Record', icon: User },
+    { key: 'feedback', label: 'Service Rating', icon: Star }
   ];
 
   const adminNavItems = [
     { key: 'dashboard', label: 'Executive Metrics', icon: BarChart3 },
     { 
       key: 'tickets', 
-      label: 'Ticket Operations', 
+      label: 'Ticket Queue', 
       icon: ShieldAlert,
-      badge: adminPendingTickets > 0 ? adminPendingTickets : null,
-      badgeVariant: 'warning'
+      badge: adminPendingTickets > 0 ? adminPendingTickets : null 
     },
     { key: 'students', label: 'Student Directory', icon: Users },
-    { key: 'ratings', label: 'Service Ratings', icon: Star }
+    { key: 'ratings', label: 'Service Reviews', icon: Star }
   ];
 
   const navItems = mode === 'admin' ? adminNavItems : studentNavItems;
 
   return (
     <>
-      {/* Mobile Backdrop */}
       {mobileOpen && (
         <div className="sidebar-backdrop" onClick={onCloseMobile} />
       )}
@@ -76,44 +72,39 @@ export const Sidebar = ({
       <aside className={`sidebar-wrapper ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
         {/* Brand Header */}
         <div className="sidebar-header">
-          <div className="sidebar-brand-icon">
-            <GraduationCap size={22} className="brand-cap-icon" />
+          <div className="sidebar-brand-group">
+            <img src={ustplogo} alt="USTP Logo" className="sidebar-logo-img" />
+            {!collapsed && (
+              <div className="sidebar-brand-text">
+                <span className="sidebar-brand-title">TrailAssistance</span>
+                <span className="sidebar-brand-sub">USTP Dean's Office</span>
+              </div>
+            )}
           </div>
-          {!collapsed && (
-            <div className="sidebar-brand-info">
-              <span className="sidebar-brand-title">TrailAssistance</span>
-              <span className="sidebar-brand-sub">University Portal</span>
-            </div>
-          )}
           <button 
             className="sidebar-collapse-btn"
             onClick={onToggleCollapse}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-label="Toggle sidebar collapse"
           >
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
           </button>
         </div>
 
-        {/* Portal Role Indicator */}
+        {/* Minimalist User Pill */}
         {!collapsed && (
-          <div className={`sidebar-role-card ${mode}`}>
-            <div className="role-card-header">
-              <span className="role-tag">{mode === 'admin' ? "Dean's Console" : "Student Hub"}</span>
-              <span className="role-status-dot" />
+          <div className="sidebar-user-pill">
+            <div className="pill-dot" />
+            <div className="pill-text">
+              <span className="pill-name">{activeUser?.name}</span>
+              <span className="pill-role">
+                {mode === 'admin' ? "Dean of College" : activeUser?.program || "Undergraduate"}
+              </span>
             </div>
-            <p className="role-card-user">{activeUser?.name}</p>
-            <p className="role-card-meta">
-              {mode === 'admin' ? activeUser?.title || 'College Dean' : activeUser?.program || 'BS Computer Science'}
-            </p>
           </div>
         )}
 
         {/* Main Navigation */}
         <nav className="sidebar-nav">
-          <span className={`nav-section-label ${collapsed ? 'sr-only' : ''}`}>
-            {mode === 'admin' ? 'Administrative Operations' : 'Academic Services'}
-          </span>
           <ul className="nav-list">
             {navItems.map(item => {
               const Icon = item.icon;
@@ -121,17 +112,17 @@ export const Sidebar = ({
               return (
                 <li key={item.key}>
                   <button
-                    className={`nav-item-btn ${isActive ? 'active' : ''} ${item.highlight ? 'highlight' : ''}`}
+                    className={`nav-item-btn ${isActive ? 'active' : ''}`}
                     onClick={() => {
                       onViewChange(item.key);
                       if (mobileOpen) onCloseMobile();
                     }}
                     title={collapsed ? item.label : undefined}
                   >
-                    <Icon size={18} className="nav-item-icon" />
+                    <Icon size={17} className="nav-item-icon" />
                     {!collapsed && <span className="nav-item-label">{item.label}</span>}
                     {!collapsed && item.badge && (
-                      <span className={`nav-item-badge ${item.badgeVariant || ''}`}>
+                      <span className="nav-item-badge">
                         {item.badge}
                       </span>
                     )}
@@ -141,70 +132,64 @@ export const Sidebar = ({
             })}
           </ul>
 
-          {/* Quick Shortcuts */}
-          <span className={`nav-section-label ${collapsed ? 'sr-only' : ''}`} style={{ marginTop: '24px' }}>
-            System Portals
-          </span>
+          <div className="sidebar-nav-divider" />
+
+          {/* Quick Persona Switcher Links */}
           <ul className="nav-list">
             {mode === 'student' ? (
               <li>
                 <button
-                  className="nav-item-btn switch-mode"
+                  className="nav-item-btn secondary"
                   onClick={() => switchPersona('admin')}
-                  title={collapsed ? "Switch to Dean's Console" : undefined}
+                  title={collapsed ? "Dean's Console" : undefined}
                 >
-                  <ShieldAlert size={18} className="nav-item-icon" />
+                  <ShieldAlert size={17} className="nav-item-icon" />
                   {!collapsed && <span className="nav-item-label">Dean's Console</span>}
                 </button>
               </li>
             ) : (
               <li>
                 <button
-                  className="nav-item-btn switch-mode"
+                  className="nav-item-btn secondary"
                   onClick={() => switchPersona('student')}
-                  title={collapsed ? "Switch to Student Portal" : undefined}
+                  title={collapsed ? "Student Portal" : undefined}
                 >
-                  <User size={18} className="nav-item-icon" />
+                  <User size={17} className="nav-item-icon" />
                   {!collapsed && <span className="nav-item-label">Student Portal</span>}
                 </button>
               </li>
             )}
             <li>
               <button
-                className="nav-item-btn switch-mode"
+                className="nav-item-btn secondary"
                 onClick={() => switchPersona('kiosk')}
-                title={collapsed ? "Lobby Kiosk Mode" : undefined}
+                title={collapsed ? "Lobby Kiosk" : undefined}
               >
-                <Monitor size={18} className="nav-item-icon" />
-                {!collapsed && <span className="nav-item-label">Lobby Kiosk Terminal</span>}
+                <Monitor size={17} className="nav-item-icon" />
+                {!collapsed && <span className="nav-item-label">Lobby Kiosk</span>}
               </button>
             </li>
           </ul>
         </nav>
 
-        {/* Sidebar Footer */}
+        {/* Footer */}
         <div className="sidebar-footer">
           {!collapsed ? (
-            <div className="sidebar-footer-content">
-              <button 
-                className="sidebar-reset-btn"
-                onClick={handleResetDemoData}
-                title="Reset mock data to pristine state"
-              >
-                <Sparkles size={14} />
-                <span>Reset Demo Data</span>
-              </button>
-              <div className="sidebar-version-tag">
-                <span>v2.4 &bull; Flagship Portfolio Edition</span>
-              </div>
-            </div>
+            <button 
+              className="sidebar-reset-btn"
+              onClick={handleResetDemoData}
+              title="Reset mock data to initial state"
+            >
+              <RotateCcw size={13} />
+              <span>Reset Demo Data</span>
+            </button>
           ) : (
             <button 
-              className="sidebar-icon-only-action"
+              className="sidebar-icon-reset"
               onClick={handleResetDemoData}
               title="Reset Demo Data"
             >
-              <Sparkles size={16} />
+              <RotateCcw size={14} />
             </button>
           )}
         </div>

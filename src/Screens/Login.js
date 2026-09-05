@@ -1,28 +1,21 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePortal } from '../context/PortalContext';
-import { 
-  GraduationCap, 
-  ShieldCheck, 
-  Mail, 
-  Lock, 
-  ArrowRight, 
-  Sparkles
-} from 'lucide-react';
+import { Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 import DemoRoleSwitcher from '../components/common/DemoRoleSwitcher';
 import ToastContainer from '../components/common/ToastContainer';
+import ustplogo from '../assets/ustplogo.png';
 import './styles/Login.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [activeTab, setActiveTab] = useState('student'); // 'student' | 'admin'
   const { switchPersona } = usePortal();
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (activeTab === 'admin' || email.includes('dean') || email.includes('admin') || email.includes('vance')) {
+    if (email.includes('dean') || email.includes('admin') || email.includes('vance')) {
       switchPersona('admin');
       navigate('/admin');
     } else {
@@ -47,79 +40,41 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page-wrapper">
+    <div className="login-campus-page">
       <ToastContainer />
       <DemoRoleSwitcher />
 
-      <div className="login-card-box card-modern">
-        {/* Header Branding */}
-        <div className="login-brand-header">
-          <div className="login-brand-icon">
-            <GraduationCap size={28} />
-          </div>
-          <h1 className="login-title">TrailAssistance Portal</h1>
-          <p className="login-sub">University Academic Assistance & Concern Tracking</p>
+      <div className="login-frosted-card card-frosted">
+        <Link to="/landing" className="login-back-link">
+          <ArrowLeft size={14} />
+          <span>Back to Campus Portal</span>
+        </Link>
+
+        {/* USTP Logo */}
+        <div className="login-brand-box">
+          <img src={ustplogo} alt="USTP Logo" className="login-ustp-img" />
+          <h1 className="login-main-title">Sign In</h1>
+          <p className="login-main-sub">Office of the Dean &bull; Academic Assistance</p>
         </div>
 
-        {/* Role Tabs */}
-        <div className="login-role-tabs">
-          <button
-            type="button"
-            className={`login-tab-btn ${activeTab === 'student' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('student');
-              setEmail('alex.morgan@demo.edu');
-            }}
-          >
-            <GraduationCap size={16} />
-            <span>Student Portal</span>
-          </button>
-          <button
-            type="button"
-            className={`login-tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('admin');
-              setEmail('sarah.vance@university.edu');
-            }}
-          >
-            <ShieldCheck size={16} />
-            <span>Dean's Office</span>
-          </button>
-        </div>
-
-        {/* 1-Click Recruiter Quick Access Bar */}
-        <div className="recruiter-quick-pill-banner">
-          <div className="quick-pill-header">
-            <Sparkles size={13} />
-            <span>Recruiter 1-Click Demo Login</span>
-          </div>
-          <div className="quick-pill-actions">
-            <button
-              type="button"
-              className="quick-demo-btn student"
-              onClick={handleDemoStudent}
-            >
-              <span>Alex Morgan (Student)</span>
+        {/* Quick Recruiter Demo Shortcuts */}
+        <div className="recruiter-pill-strip">
+          <span className="pill-strip-label">1-Click Recruiter Demo</span>
+          <div className="pill-btn-group">
+            <button type="button" className="pill-btn student" onClick={handleDemoStudent}>
+              Student (Alex)
             </button>
-            <button
-              type="button"
-              className="quick-demo-btn admin"
-              onClick={handleDemoAdmin}
-            >
-              <span>Dr. Vance (Dean)</span>
+            <button type="button" className="pill-btn dean" onClick={handleDemoAdmin}>
+              Dean (Dr. Vance)
             </button>
-            <button
-              type="button"
-              className="quick-demo-btn kiosk"
-              onClick={handleDemoKiosk}
-            >
-              <span>Kiosk Mode</span>
+            <button type="button" className="pill-btn kiosk" onClick={handleDemoKiosk}>
+              Lobby Kiosk
             </button>
           </div>
         </div>
 
         {/* Standard Form */}
-        <form onSubmit={handleLogin} className="login-form-body">
+        <form onSubmit={handleLogin} className="login-compact-form">
           <div className="form-field-group">
             <label className="field-label">Institutional Email</label>
             <div className="input-with-icon">
@@ -128,7 +83,7 @@ const Login = () => {
                 type="email"
                 required
                 className="input-modern"
-                placeholder={activeTab === 'admin' ? 'dean@university.edu' : 'student@demo.edu'}
+                placeholder="student@demo.edu or dean@university.edu"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
               />
@@ -150,15 +105,15 @@ const Login = () => {
             </div>
           </div>
 
-          <button type="submit" className="btn-primary login-action-btn">
-            <span>Sign in to {activeTab === 'admin' ? "Dean's Console" : 'Student Portal'}</span>
-            <ArrowRight size={16} />
+          <button type="submit" className="btn-primary login-submit-btn">
+            <span>Sign In</span>
+            <ArrowRight size={15} />
           </button>
         </form>
 
-        <div className="login-footer-row">
-          <span>Need to create a new profile?</span>
-          <Link to="/sign-up" className="signup-link">Register Account</Link>
+        <div className="login-bottom-links">
+          <span>First time student?</span>
+          <Link to="/sign-up" className="signup-text-link">Register Account</Link>
         </div>
       </div>
     </div>
