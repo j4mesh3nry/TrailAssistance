@@ -5,7 +5,13 @@ import {
   GraduationCap, 
   ShieldCheck, 
   Monitor, 
-  ArrowRight
+  ArrowRight,
+  BookOpen,
+  Award,
+  Calendar,
+  Clock,
+  MapPin,
+  CheckCircle2
 } from 'lucide-react';
 import DemoRoleSwitcher from '../components/common/DemoRoleSwitcher';
 import ToastContainer from '../components/common/ToastContainer';
@@ -36,114 +42,152 @@ const Landing = () => {
       <ToastContainer />
       <DemoRoleSwitcher />
 
-      {/* Clean Navbar */}
-      <header className="landing-clean-nav">
-        <div className="nav-brand-group">
-          <img src={ustplogo} alt="USTP Emblem" className="nav-ustp-logo" />
-          <div className="nav-brand-text">
-            <span className="brand-primary-name">TrailAssistance</span>
-            <span className="brand-school-sub">USTP Dean's Office Assistance Portal</span>
+      {/* Official University Institutional Header */}
+      <header className="landing-univ-nav">
+        <div className="univ-nav-brand">
+          <img src={ustplogo} alt="USTP Official Seal" className="univ-seal-img" />
+          <div className="univ-nav-text">
+            <span className="univ-system-title">University of Science and Technology of Southern Philippines</span>
+            <span className="univ-portal-sub">Office of the College Dean &bull; Student Academic Assistance Portal</span>
           </div>
         </div>
 
-        <nav className="nav-action-links">
-          <button className="nav-text-btn" onClick={handleStartStudent}>Student</button>
-          <button className="nav-text-btn" onClick={handleStartAdmin}>Dean</button>
-          <button className="nav-text-btn" onClick={handleStartKiosk}>Kiosk</button>
-          <Link to="/login" className="btn-primary nav-signin-btn">
-            <span>Login</span>
+        <div className="univ-nav-actions">
+          <button className="univ-nav-link" onClick={handleStartStudent}>Student Portal</button>
+          <button className="univ-nav-link" onClick={handleStartAdmin}>Dean's Console</button>
+          <button className="univ-nav-link" onClick={handleStartKiosk}>Lobby Kiosk</button>
+          <Link to="/login" className="univ-signin-btn">
+            <span>Sign In</span>
             <ArrowRight size={14} />
           </Link>
-        </nav>
+        </div>
       </header>
 
-      {/* Hero Section with Campus Background */}
-      <main className="landing-hero-center">
-        <div className="hero-concise-wrapper">
-          <div className="campus-badge">
-            <span>USTP &bull; Academic Year 2026–2027</span>
+      {/* Hero Welcome Container with Campus Photography */}
+      <main className="landing-main-wrapper">
+        <div className="portal-gateway-card">
+          <div className="gateway-header">
+            <div className="gateway-kicker">
+              <span className="kicker-pill">Official Academic Portal &bull; A.Y. 2026–2027</span>
+            </div>
+            <h1 className="gateway-title">
+              Dean's Office Academic Assistance &amp; Student Concern Portal
+            </h1>
+            <p className="gateway-description">
+              Welcome to the centralized portal for academic inquiries, prerequisite waivers, 
+              graduation clearances, and official dean consultations.
+            </p>
           </div>
 
-          <h1 className="hero-concise-title">
-            Academic Assistance & <br />
-            Student Concern Portal
-          </h1>
+          {/* Primary Action Gateways */}
+          <div className="gateway-action-row">
+            <button className="btn-primary gateway-btn" onClick={handleStartStudent}>
+              <GraduationCap size={18} />
+              <span>Enter Student Portal</span>
+              <ArrowRight size={16} />
+            </button>
+            <Link to="/login" className="btn-secondary gateway-btn">
+              <span>Account Sign In</span>
+            </Link>
+            <button className="gateway-text-btn" onClick={handleStartAdmin}>
+              <ShieldCheck size={16} />
+              <span>Dean &amp; Faculty Access</span>
+            </button>
+            <button className="gateway-text-btn" onClick={handleStartKiosk}>
+              <Monitor size={16} />
+              <span>Lobby Kiosk Terminal</span>
+            </button>
+          </div>
 
-          <p className="hero-concise-sub">
-            Welcome to the Dean's Office Assistance Portal. We're here to help you with all your academic needs &bull; 
-            real-time lifecycle tracking for USTP scholars.
-          </p>
-
-          {/* Minimalist 3-Persona Cards */}
-          <div className="persona-trio-grid">
-            <div className="card-frosted persona-trio-card" onClick={handleStartStudent}>
-              <div className="trio-icon-box student">
-                <GraduationCap size={22} />
-              </div>
-              <span className="trio-tag">Student Persona</span>
-              <h3>Alex Morgan</h3>
-              <p className="trio-meta">BS Computer Science &bull; 4th Year</p>
-              <div className="trio-link">
-                <span>Enter Portal</span>
-                <ArrowRight size={14} />
-              </div>
+          {/* Academic Services Touchpoint Grid */}
+          <div className="academic-services-section">
+            <div className="services-section-heading">
+              <h2>Key Academic Touchpoints</h2>
+              <span className="heading-line" />
             </div>
 
-            <div className="card-frosted persona-trio-card highlighted" onClick={handleStartAdmin}>
-              <div className="trio-icon-box dean">
-                <ShieldCheck size={22} />
+            <div className="academic-services-grid">
+              <div className="service-tile" onClick={handleStartStudent}>
+                <div className="tile-icon-wrap">
+                  <BookOpen size={20} />
+                </div>
+                <div className="tile-content">
+                  <h3>Prerequisite &amp; Overload Inquiries</h3>
+                  <p>Submit formal petitions for subject waivers, credit cross-enrollment, and maximum unit loads.</p>
+                </div>
               </div>
-              <span className="trio-tag dean">Dean's Persona</span>
-              <h3>Dr. Sarah Vance</h3>
-              <p className="trio-meta">College Dean &bull; Executive Console</p>
-              <div className="trio-link">
-                <span>Enter Console</span>
-                <ArrowRight size={14} />
-              </div>
-            </div>
 
-            <div className="card-frosted persona-trio-card" onClick={handleStartKiosk}>
-              <div className="trio-icon-box kiosk">
-                <Monitor size={22} />
+              <div className="service-tile" onClick={handleStartStudent}>
+                <div className="tile-icon-wrap">
+                  <CheckCircle2 size={20} />
+                </div>
+                <div className="tile-content">
+                  <h3>Graduation &amp; Subject Clearance</h3>
+                  <p>Track department clearance sign-offs, resolve library or laboratory holds, and verify degree audits.</p>
+                </div>
               </div>
-              <span className="trio-tag kiosk">Lobby Terminal</span>
-              <h3>Self-Service Kiosk</h3>
-              <p className="trio-meta">Lobby Walk-in &bull; Queue Slip</p>
-              <div className="trio-link">
-                <span>Launch Kiosk</span>
-                <ArrowRight size={14} />
+
+              <div className="service-tile" onClick={handleStartStudent}>
+                <div className="tile-icon-wrap">
+                  <Award size={20} />
+                </div>
+                <div className="tile-content">
+                  <h3>Scholarships &amp; Financial Aid</h3>
+                  <p>Request Dean's certification and institutional endorsements for CHED and university assistance.</p>
+                </div>
+              </div>
+
+              <div className="service-tile" onClick={handleStartStudent}>
+                <div className="tile-icon-wrap">
+                  <Calendar size={20} />
+                </div>
+                <div className="tile-content">
+                  <h3>Dean &amp; Faculty Advising</h3>
+                  <p>Book formal 1-on-1 consultations with Dr. Sarah Vance at the Dean's Office (Room 302B).</p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Minimalist Stats Strip */}
-          <div className="concise-stats-bar card-frosted">
-            <div className="c-stat-item">
-              <span className="c-stat-val">{analytics?.totalTickets || 18}</span>
-              <span className="c-stat-lbl">Active Inquiries</span>
+          {/* Institutional Operating Info & Realtime Metrics */}
+          <div className="portal-notice-bar">
+            <div className="notice-item">
+              <MapPin size={16} className="notice-icon" />
+              <div>
+                <span className="notice-lbl">Main Campus Location</span>
+                <span className="notice-val">C.M. Recto Ave, Lapasan, Cagayan de Oro City</span>
+              </div>
             </div>
-            <div className="c-stat-line" />
-            <div className="c-stat-item">
-              <span className="c-stat-val">{analytics?.resolutionRate || 92}%</span>
-              <span className="c-stat-lbl">Resolution Rate</span>
+
+            <div className="notice-divider" />
+
+            <div className="notice-item">
+              <Clock size={16} className="notice-icon" />
+              <div>
+                <span className="notice-lbl">Dean's Consultation Hours</span>
+                <span className="notice-val">Mon–Fri: 8:30 AM – 5:00 PM &bull; Priority Walk-in: 1:30 PM</span>
+              </div>
             </div>
-            <div className="c-stat-line" />
-            <div className="c-stat-item">
-              <span className="c-stat-val">1.4 Days</span>
-              <span className="c-stat-lbl">Average SLA</span>
-            </div>
-            <div className="c-stat-line" />
-            <div className="c-stat-item">
-              <span className="c-stat-val">USTP CDO</span>
-              <span className="c-stat-lbl">Lapasan Campus</span>
+
+            <div className="notice-divider" />
+
+            <div className="notice-item">
+              <CheckCircle2 size={16} className="notice-icon" />
+              <div>
+                <span className="notice-lbl">Queue Efficiency Rate</span>
+                <span className="notice-val">{analytics?.resolutionRate || 92}% Resolved &bull; 1.4 Days Avg Turnaround</span>
+              </div>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Minimalist Footer */}
-      <footer className="landing-clean-footer">
-        <span>&copy; 2026 University of Science and Technology of Southern Philippines (USTP). All rights reserved.</span>
+      {/* Official Institutional Footer */}
+      <footer className="landing-univ-footer">
+        <div className="footer-content">
+          <span>&copy; 2026 University of Science and Technology of Southern Philippines (USTP). Office of the College Dean.</span>
+          <span className="footer-meta">TrailAssistance Portal &bull; Cagayan de Oro City &bull; All Rights Reserved</span>
+        </div>
       </footer>
     </div>
   );

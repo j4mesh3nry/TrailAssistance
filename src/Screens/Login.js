@@ -53,13 +53,13 @@ const Login = () => {
         {/* USTP Logo */}
         <div className="login-brand-box">
           <img src={ustplogo} alt="USTP Logo" className="login-ustp-img" />
-          <h1 className="login-main-title">Sign In</h1>
-          <p className="login-main-sub">Office of the Dean &bull; Academic Assistance</p>
+          <h1 className="login-main-title">Portal Sign In</h1>
+          <p className="login-main-sub">University of Science and Technology of Southern Philippines</p>
         </div>
 
-        {/* Quick Recruiter Demo Shortcuts */}
+        {/* Quick Role Access */}
         <div className="recruiter-pill-strip">
-          <span className="pill-strip-label">1-Click Recruiter Demo</span>
+          <span className="pill-strip-label">Quick Sign-In Access</span>
           <div className="pill-btn-group">
             <button type="button" className="pill-btn student" onClick={handleDemoStudent}>
               Student (Alex)

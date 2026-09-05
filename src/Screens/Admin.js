@@ -7,6 +7,7 @@ import ExecutiveMetricsView from '../components/admin/ExecutiveMetricsView';
 import TicketManagementView from '../components/admin/TicketManagementView';
 import StudentDirectoryView from '../components/admin/StudentDirectoryView';
 import RatingsAnalyticsView from '../components/admin/RatingsAnalyticsView';
+import { BarChart3, ShieldAlert, Users, Star } from 'lucide-react';
 
 export const Admin = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -60,6 +61,38 @@ export const Admin = () => {
             <RatingsAnalyticsView />
           )}
         </main>
+
+        {/* Native Mobile Bottom Navigation Bar */}
+        <nav className="mobile-bottom-nav">
+          <button 
+            className={`mobile-nav-tab ${currentView === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setCurrentView('dashboard')}
+          >
+            <BarChart3 size={18} />
+            <span>Metrics</span>
+          </button>
+          <button 
+            className={`mobile-nav-tab ${currentView === 'tickets' ? 'active' : ''}`}
+            onClick={() => setCurrentView('tickets')}
+          >
+            <ShieldAlert size={18} />
+            <span>Queue</span>
+          </button>
+          <button 
+            className={`mobile-nav-tab ${currentView === 'students' ? 'active' : ''}`}
+            onClick={() => setCurrentView('students')}
+          >
+            <Users size={18} />
+            <span>Roster</span>
+          </button>
+          <button 
+            className={`mobile-nav-tab ${currentView === 'ratings' ? 'active' : ''}`}
+            onClick={() => setCurrentView('ratings')}
+          >
+            <Star size={18} />
+            <span>Reviews</span>
+          </button>
+        </nav>
       </div>
     </div>
   );

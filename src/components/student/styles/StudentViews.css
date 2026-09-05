@@ -15,7 +15,7 @@
 
 /* Hero Card */
 .student-hero-card {
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
+  background: linear-gradient(135deg, #0f2942 0%, #163b65 60%, #1e3a8a 100%);
   border-radius: var(--radius-xl);
   padding: 32px;
   color: #ffffff;
@@ -36,7 +36,7 @@
   width: 500px;
   height: 500px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(99, 102, 241, 0) 70%);
+  background: radial-gradient(circle, rgba(217, 119, 6, 0.15) 0%, rgba(30, 58, 138, 0.05) 70%);
   pointer-events: none;
 }
 

@@ -19,7 +19,7 @@ const URGENCY_CONFIG = {
   urgent: {
     label: 'Urgent Action',
     className: 'urgency-urgent',
-    icon: '⚡'
+    icon: '●'
   }
 };
 

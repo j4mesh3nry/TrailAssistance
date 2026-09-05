@@ -8,6 +8,7 @@ import NewTicketForm from '../components/student/NewTicketForm';
 import MyTicketsView from '../components/student/MyTicketsView';
 import StudentProfileView from '../components/student/StudentProfileView';
 import WebsiteFeedbackView from '../components/student/WebsiteFeedbackView';
+import { LayoutDashboard, PlusCircle, Ticket, User, Star } from 'lucide-react';
 
 export const Dashboard = () => {
   const [currentView, setCurrentView] = useState('overview');
@@ -65,6 +66,45 @@ export const Dashboard = () => {
             <WebsiteFeedbackView />
           )}
         </main>
+
+        {/* Native Mobile Bottom Navigation Bar */}
+        <nav className="mobile-bottom-nav">
+          <button 
+            className={`mobile-nav-tab ${currentView === 'overview' ? 'active' : ''}`}
+            onClick={() => setCurrentView('overview')}
+          >
+            <LayoutDashboard size={18} />
+            <span>Overview</span>
+          </button>
+          <button 
+            className={`mobile-nav-tab ${currentView === 'newTicket' ? 'active' : ''}`}
+            onClick={() => setCurrentView('newTicket')}
+          >
+            <PlusCircle size={18} />
+            <span>File</span>
+          </button>
+          <button 
+            className={`mobile-nav-tab ${currentView === 'myTickets' ? 'active' : ''}`}
+            onClick={() => setCurrentView('myTickets')}
+          >
+            <Ticket size={18} />
+            <span>Concerns</span>
+          </button>
+          <button 
+            className={`mobile-nav-tab ${currentView === 'profile' ? 'active' : ''}`}
+            onClick={() => setCurrentView('profile')}
+          >
+            <User size={18} />
+            <span>Record</span>
+          </button>
+          <button 
+            className={`mobile-nav-tab ${currentView === 'feedback' ? 'active' : ''}`}
+            onClick={() => setCurrentView('feedback')}
+          >
+            <Star size={18} />
+            <span>Rating</span>
+          </button>
+        </nav>
       </div>
     </div>
   );
