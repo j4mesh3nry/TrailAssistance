@@ -298,10 +298,11 @@ table.t-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-
 .t-step-line { flex: 1; height: 2px; background: #e2e8f0; border-radius: 2px; min-width: 20px; }
 .t-step-line.done { background: #059669; }
 .t-pick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.t-pick { display: flex; gap: 12px; text-align: left; background: #fff; border: 1.5px solid var(--t-line); border-radius: 13px; padding: 14px; cursor: pointer; font-family: inherit; transition: all 0.14s; width: 100%; }
+.t-btn svg { flex-shrink: 0; }
+.t-pick { display: flex; gap: 12px; align-items: center; text-align: left; background: #fff; border: 1.5px solid var(--t-line); border-radius: 13px; padding: 13px 14px; cursor: pointer; font-family: inherit; transition: border-color 0.14s, background 0.14s, box-shadow 0.14s; width: 100%; }
 .t-pick:hover { border-color: var(--t-navy-700); }
-.t-pick.selected { border-color: var(--t-navy-900); background: #f4f7ff; box-shadow: 0 0 0 2px rgba(15,41,66,0.12); }
-.t-pick-icon { width: 42px; height: 42px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.t-pick.selected { border-color: var(--t-navy-900); background: #f4f7ff; box-shadow: inset 0 0 0 1px var(--t-navy-900); }
+.t-pick-icon { width: 44px; height: 44px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; align-self: center; flex-shrink: 0; }
 .t-pick strong { display: block; font-size: 0.84rem; color: var(--t-navy-950); }
 .t-pick span { display: block; font-size: 0.74rem; color: var(--t-slate-500); margin-top: 2px; }
 .t-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }

@@ -11,7 +11,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    // Zero-config showcase: log locally, never crash the demo
+    // Fail soft: log locally, never crash the session
     // eslint-disable-next-line no-console
     console.warn('TrailAssistance recovered from a view error:', error, info);
   }
@@ -32,7 +32,7 @@ export class ErrorBoundary extends React.Component {
           <div className="card-modern" style={{ maxWidth: 480, padding: 28, textAlign: 'center' }}>
             <h1 style={{ fontSize: '1.25rem', marginBottom: 8 }}>Something didn&apos;t load</h1>
             <p style={{ color: 'var(--slate-600)', fontSize: '0.875rem', marginBottom: 16 }}>
-              The demo recovered safely. Your local showcase data is intact.
+              Something didn\u2019t load. Your requests are safe \u2014 nothing was lost.
             </p>
             <button type="button" className="btn-primary" onClick={this.handleReset}>
               Return to Campus Portal
@@ -46,3 +46,4 @@ export class ErrorBoundary extends React.Component {
 }
 
 export default ErrorBoundary;
+

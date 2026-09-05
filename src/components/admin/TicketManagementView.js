@@ -21,7 +21,7 @@ const TEMPLATES = [
 ];
 
 export const TicketManagementView = ({ focusTicket, clearFocus }) => {
-  const { tickets, handleUpdateStatus, handleAssignStaff, handleAddStaffNote, handleDeleteTicket, showToast } = usePortal();
+  const { tickets, activeUser, handleUpdateStatus, handleAssignStaff, handleAddStaffNote, handleDeleteTicket, showToast } = usePortal();
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('all');
   const [urgency, setUrgency] = useState('all');
@@ -59,11 +59,12 @@ export const TicketManagementView = ({ focusTicket, clearFocus }) => {
   const openTicket = (t) => { setOpenId(t.id); setDStatus(t.status); setDStaff(t.assignedStaff || STAFF[0]); setMemo(t.resolutionNotes || ''); setNote(''); };
   const open = tickets.find((t) => t.id === openId) || null;
 
+  const actorName = activeUser?.name ? `${activeUser.name} (Dean's Office)` : "Dean's Office";
   const save = () => {
     if (!open) return;
-    if (dStatus !== open.status || memo !== open.resolutionNotes) handleUpdateStatus(open.id, dStatus, memo, 'Dr. Sarah Vance (Dean)');
-    if (dStaff !== open.assignedStaff) handleAssignStaff(open.id, dStaff, 'Dr. Sarah Vance (Dean)');
-    if (note.trim()) handleAddStaffNote(open.id, note.trim(), 'Dr. Sarah Vance (Dean)');
+    if (dStatus !== open.status || memo !== open.resolutionNotes) handleUpdateStatus(open.id, dStatus, memo, actorName);
+    if (dStaff !== open.assignedStaff) handleAssignStaff(open.id, dStaff, actorName);
+    if (note.trim()) handleAddStaffNote(open.id, note.trim(), actorName);
     setOpenId(null);
   };
 
@@ -209,3 +210,4 @@ export const TicketManagementView = ({ focusTicket, clearFocus }) => {
 };
 
 export default TicketManagementView;
+

@@ -27,7 +27,7 @@ export const WebsiteFeedbackView = () => {
       <div className="t-card t-empty">
         <span className="t-kpi-icon" style={{ background: '#ecfdf5', color: '#047857', width: 56, height: 56 }}><BadgeCheck size={28} aria-hidden="true" /></span>
         <h3>Salamat — feedback recorded</h3>
-        <p>Your rating feeds the Dean’s live satisfaction board. Reset the demo anytime to replay the flow.</p>
+        <p>Your rating feeds the live satisfaction board.</p>
         <button type="button" className="t-btn t-btn-secondary" onClick={() => setDone(false)}>Rate again</button>
       </div>
     );
@@ -71,10 +71,12 @@ export const WebsiteFeedbackView = () => {
           <textarea id="fb-text" className="t-textarea" value={text} onChange={(e) => setText(e.target.value)} placeholder="What helped? What should be faster next time?" />
         </div>
         <button type="submit" className="t-btn t-btn-gold" style={{ width: '100%' }}><Send size={15} aria-hidden="true" /> Submit feedback</button>
-        <p style={{ fontSize: '0.72rem', color: 'var(--t-slate-500)', textAlign: 'center', marginTop: 10 }}>{ratings.length} verified reviews in this showcase dataset</p>
+        <p style={{ fontSize: '0.72rem', color: 'var(--t-slate-500)', textAlign: 'center', marginTop: 10 }}>{ratings.length} verified student reviews</p>
       </form>
     </div>
   );
 };
 
 export default WebsiteFeedbackView;
+
+

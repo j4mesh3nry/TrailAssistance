@@ -11,7 +11,6 @@ import {
   addStudentReplyNote,
   deleteTicket,
   addRating,
-  resetDemoData,
   getSlaInfo
 } from '../services/portalStorage';
 import { DEMO_PERSONAS } from '../services/mockData';
@@ -24,7 +23,34 @@ export const usePortal = () => {
   return context;
 };
 
+const SESSION_KEY = 'trail_session';
+const USER_KEY = 'currentUser';
 const DRAFT_KEY = 'trail_request_draft_v2';
+
+const initials = (name) => (name || 'ST').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+
+const buildUser = (role, { name, email }) => {
+  const cleanName = (name || '').trim();
+  if (role === 'staff') {
+    return {
+      ...DEMO_PERSONAS.admin,
+      name: cleanName || 'Dean’s Office',
+      email: (email || '').trim() || 'dean.office@ustp.edu.ph',
+      avatar: initials(cleanName || 'DO')
+    };
+  }
+  if (role === 'kiosk') {
+    return { ...DEMO_PERSONAS.kiosk, operator: cleanName || 'Lobby staff' };
+  }
+  return {
+    ...DEMO_PERSONAS.student,
+    name: cleanName || 'Student',
+    email: (email || '').trim() || 'student@ustp.edu.ph',
+    avatar: initials(cleanName || 'ST')
+  };
+};
+
+export const roleHome = (role) => (role === 'staff' ? '/admin' : role === 'kiosk' ? '/kiosk' : '/dashboard');
 
 export const PortalProvider = ({ children }) => {
   const [students, setStudents] = useState([]);
@@ -34,17 +60,23 @@ export const PortalProvider = ({ children }) => {
   const [commandOpen, setCommandOpen] = useState(false);
   const [globalQuery, setGlobalQuery] = useState('');
 
-  const [personaType, setPersonaType] = useState(() => {
-    try { return localStorage.getItem('trail_active_persona_type') || 'student'; } catch { return 'student'; }
+  const [session, setSession] = useState(() => {
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
   });
 
   const [activeUser, setActiveUser] = useState(() => {
     try {
-      const saved = localStorage.getItem('currentUser');
+      const saved = localStorage.getItem(USER_KEY);
       if (saved) return JSON.parse(saved);
-    } catch { /* fallback */ }
-    return DEMO_PERSONAS.student;
+    } catch { /* fresh session */ }
+    return null;
   });
+
+  // Role consumed by UI: 'student' | 'staff' | 'kiosk' (null when signed out)
+  const personaType = session?.role || null;
 
   const [draft, setDraft] = useState(() => {
     try {
@@ -94,15 +126,28 @@ export const PortalProvider = ({ children }) => {
     } catch { /* private mode */ }
   }, []);
 
-  const switchPersona = useCallback((newType) => {
-    setPersonaType(newType);
-    try { localStorage.setItem('trail_active_persona_type', newType); } catch { /* noop */ }
-    let personaObj = DEMO_PERSONAS.student;
-    if (newType === 'admin') { personaObj = DEMO_PERSONAS.admin; showToast("Dean console: Dr. Sarah Vance", 'info'); }
-    else if (newType === 'kiosk') { personaObj = DEMO_PERSONAS.kiosk; showToast('Kiosk terminal mode', 'info'); }
-    else { showToast('Student workspace: Alex Morgan', 'info'); }
-    setActiveUser(personaObj);
-    try { localStorage.setItem('currentUser', JSON.stringify(personaObj)); } catch { /* noop */ }
+  const signInAs = useCallback((role, { name, email } = {}) => {
+    const user = buildUser(role, { name, email });
+    const nextSession = { role, name: user.name, email: user.email || '', at: new Date().toISOString() };
+    setSession(nextSession);
+    setActiveUser(user);
+    try {
+      localStorage.setItem(SESSION_KEY, JSON.stringify(nextSession));
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+      localStorage.setItem('trail_active_persona_type', role);
+    } catch { /* private mode */ }
+    const first = (user.name || '').split(' ')[0];
+    showToast(first ? `Welcome, ${first} — signed in.` : 'Signed in successfully.', 'success');
+    return { user, session: nextSession };
+  }, [showToast]);
+
+  const signOut = useCallback(() => {
+    setSession(null);
+    try {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(USER_KEY);
+    } catch { /* noop */ }
+    showToast('Signed out. See you soon.', 'info');
   }, [showToast]);
 
   const handleCreateTicket = useCallback((ticketData) => {
@@ -154,19 +199,10 @@ export const PortalProvider = ({ children }) => {
     return created;
   }, [reloadData, showToast]);
 
-  const handleResetDemoData = useCallback(() => {
-    const data = resetDemoData();
-    setStudents(data.students);
-    setTickets(data.tickets);
-    setRatings(data.ratings);
-    setAnalytics(getPortalAnalytics());
-    saveDraft(null);
-    showToast('Demo reset — fresh showcase data', 'success');
-  }, [showToast, saveDraft]);
-
   const notifications = useMemo(() => {
+    if (!session) return [];
     const pool = (tickets || []).filter((t) =>
-      personaType === 'admin' ? t.status !== 'resolved' : t.studentEmail === activeUser?.email
+      session.role === 'staff' ? t.status !== 'resolved' : t.studentEmail === activeUser?.email
     );
     return pool.slice(0, 5).map((t, i) => {
       const last = (t.timeline || [])[(t.timeline || []).length - 1];
@@ -181,14 +217,15 @@ export const PortalProvider = ({ children }) => {
         breach: sla.isBreach
       };
     });
-  }, [tickets, personaType, activeUser]);
+  }, [tickets, session, activeUser]);
 
   const value = {
     students, tickets, ratings,
     analytics: analytics || { totalTickets: 0, pendingTickets: 0, resolutionRate: 0, avgRating: '4.8', categoryCounts: {}, urgencyCounts: {} },
-    personaType, activeUser, setActiveUser, switchPersona,
+    session, personaType, activeUser, setActiveUser,
+    signInAs, signOut,
     handleCreateTicket, handleUpdateStatus, handleAssignStaff, handleAddStaffNote,
-    handleAddStudentReply, handleDeleteTicket, handleSubmitRating, handleResetDemoData,
+    handleAddStudentReply, handleDeleteTicket, handleSubmitRating,
     reloadData, toasts, showToast, removeToast,
     commandOpen, setCommandOpen, globalQuery, setGlobalQuery,
     notifications, draft, saveDraft

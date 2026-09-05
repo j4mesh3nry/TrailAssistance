@@ -2,8 +2,11 @@ import React from 'react';
 import { usePortal } from '../../context/PortalContext';
 import ustplogo from '../../assets/ustplogo.png';
 
+const ROLE_LABEL = { student: 'Student', staff: 'Dean & Staff', kiosk: 'Lobby Kiosk' };
+
 export const Sidebar = ({ title, subtitle, sections, currentView, onViewChange, footer }) => {
-  const { tickets, activeUser, personaType } = usePortal();
+  const { tickets, activeUser, session } = usePortal();
+  const personaType = session?.role || 'student';
 
   const withCounts = (items) => items.map((item) => {
     if (item.countKey === 'studentActive') {
@@ -52,10 +55,10 @@ export const Sidebar = ({ title, subtitle, sections, currentView, onViewChange, 
       </nav>
       <div className="t-side-foot">
         <div className="t-user-chip">
-          <span className="t-avatar sm" aria-hidden="true">{activeUser?.avatar || (personaType === 'admin' ? 'SV' : 'AM')}</span>
+          <span className="t-avatar sm" aria-hidden="true">{activeUser?.avatar || (activeUser?.name || 'U').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()}</span>
           <div style={{ minWidth: 0 }}>
-            <span className="t-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{activeUser?.name || 'Demo user'}</span>
-            <span className="t-role">{personaType === 'admin' ? 'College Dean' : personaType === 'kiosk' ? 'Lobby terminal' : activeUser?.program || 'Student'}</span>
+            <span className="t-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{activeUser?.name || session?.name || 'Signed in'}</span>
+            <span className="t-role">{personaType === 'staff' ? 'Dean & Staff' : personaType === 'kiosk' ? 'Lobby terminal' : activeUser?.program || ROLE_LABEL[session?.role] || 'Student'}</span>
           </div>
         </div>
         {footer}

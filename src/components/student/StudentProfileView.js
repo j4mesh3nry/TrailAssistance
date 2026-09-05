@@ -61,7 +61,7 @@ export const StudentProfileView = () => {
           </div>
           <div className="t-card t-card-pad">
             <h3 className="t-section-title">Contact & emergency</h3>
-            <p className="t-section-sub">Showcase-only — saved to this browser session.</p>
+            <p className="t-section-sub">Saved on this device.</p>
             <form onSubmit={(e) => { e.preventDefault(); showToast('Contact preferences saved', 'success'); }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div className="t-field" style={{ margin: 0 }}>
@@ -92,3 +92,4 @@ export const StudentProfileView = () => {
 };
 
 export default StudentProfileView;
+

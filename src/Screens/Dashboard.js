@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, FilePlus2, Inbox, CalendarClock, User, Star, RotateCcw } from 'lucide-react';
+import { Navigate } from 'react-router-dom';
+import { LayoutDashboard, FilePlus2, Inbox, CalendarClock, User, Star } from 'lucide-react';
 import Sidebar from '../components/common/Sidebar';
 import Navbar from '../components/common/Navbar';
 import CommandPalette from '../components/common/CommandPalette';
-import DemoRoleSwitcher from '../components/common/DemoRoleSwitcher';
 import ToastContainer from '../components/common/ToastContainer';
 import OverviewView from '../components/student/OverviewView';
 import NewTicketForm from '../components/student/NewTicketForm';
@@ -25,7 +25,9 @@ const TITLES = {
 export const Dashboard = () => {
   const [view, setView] = useState('home');
   const [focusTicket, setFocusTicket] = useState(null);
-  const { handleResetDemoData } = usePortal();
+  const { session } = usePortal();
+
+  if (!session || session.role !== 'student') return <Navigate to="/login" replace />;
 
   const openTicket = (ticketNumber) => { setFocusTicket(ticketNumber); setView('requests'); };
 
@@ -52,12 +54,10 @@ export const Dashboard = () => {
     <div className="t-shell">
       <a className="t-skip" href="#student-main">Skip to content</a>
       <ToastContainer />
-      <DemoRoleSwitcher />
       <CommandPalette onSelectTicket={openTicket} />
       <Sidebar
-        title="Student workspace" subtitle="USTP • Student OS"
+        title="Student workspace" subtitle="USTP • Student"
         sections={sections} currentView={view} onViewChange={setView}
-        footer={<button type="button" className="t-nav-btn" onClick={handleResetDemoData}><RotateCcw size={16} aria-hidden="true" /><span>Reset demo</span></button>}
       />
       <div className="t-main">
         <Navbar crumb={crumb} pageTitle={title} onOpenQueue={openTicket} />

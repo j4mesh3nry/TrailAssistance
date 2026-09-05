@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Inbox, Users, Star, Download, RotateCcw } from 'lucide-react';
+import { Navigate } from 'react-router-dom';
+import { LayoutDashboard, Inbox, Users, Star, Download } from 'lucide-react';
 import Sidebar from '../components/common/Sidebar';
 import Navbar from '../components/common/Navbar';
 import CommandPalette from '../components/common/CommandPalette';
-import DemoRoleSwitcher from '../components/common/DemoRoleSwitcher';
 import ToastContainer from '../components/common/ToastContainer';
 import ExecutiveMetricsView from '../components/admin/ExecutiveMetricsView';
 import TicketManagementView from '../components/admin/TicketManagementView';
@@ -22,7 +22,9 @@ const TITLES = {
 export const Admin = () => {
   const [view, setView] = useState('command');
   const [focusTicket, setFocusTicket] = useState(null);
-  const { tickets, showToast, handleResetDemoData } = usePortal();
+  const { tickets, showToast, session } = usePortal();
+
+  if (!session || session.role !== 'staff') return <Navigate to="/login" replace />;
 
   const openTicket = (ticketNumber) => { setFocusTicket(ticketNumber); setView('queue'); };
   const exportAll = () => {
@@ -51,16 +53,12 @@ export const Admin = () => {
     <div className="t-shell">
       <a className="t-skip" href="#admin-main">Skip to content</a>
       <ToastContainer />
-      <DemoRoleSwitcher />
       <CommandPalette onSelectTicket={openTicket} />
       <Sidebar
         title="Dean console" subtitle="USTP • Operations"
         sections={sections} currentView={view} onViewChange={setView}
         footer={
-          <>
-            <button type="button" className="t-nav-btn" onClick={exportAll}><Download size={16} aria-hidden="true" /><span>Export ledger</span></button>
-            <button type="button" className="t-nav-btn" onClick={handleResetDemoData}><RotateCcw size={16} aria-hidden="true" /><span>Reset demo</span></button>
-          </>
+          <button type="button" className="t-nav-btn" onClick={exportAll}><Download size={16} aria-hidden="true" /><span>Export ledger</span></button>
         }
       />
       <div className="t-main">

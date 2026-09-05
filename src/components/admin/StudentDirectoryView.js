@@ -20,7 +20,7 @@ export const StudentDirectoryView = () => {
 
   return (
     <div>
-      <PageHeader kicker={`${students.length} enrolled in showcase`} title="Student directory" sub="360° view — record, open requests, standing. Search is instant." />
+      <PageHeader kicker={`${students.length} enrolled students`} title="Student directory" sub="360° view — record, open requests, standing. Search is instant." />
       <div className="t-card t-card-pad" style={{ marginBottom: 12 }}>
         <div className="t-input-icon">
           <Search size={16} aria-hidden="true" />
@@ -70,7 +70,7 @@ export const StudentDirectoryView = () => {
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
               <button
                 type="button" className="t-btn t-btn-danger t-btn-sm"
-                onClick={() => { if (window.confirm(`Remove ${open.name} from showcase?`)) { deleteStudent(open.id); reloadData(); setOpenId(null); showToast('Student removed from showcase', 'info'); } }}
+                onClick={() => { if (window.confirm(`Remove ${open.name} from the directory?`)) { deleteStudent(open.id); reloadData(); setOpenId(null); showToast('Student record removed', 'info'); } }}
               >
                 <Trash2 size={14} aria-hidden="true" /> Remove
               </button>
@@ -84,3 +84,6 @@ export const StudentDirectoryView = () => {
 };
 
 export default StudentDirectoryView;
+
+
+

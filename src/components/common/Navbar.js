@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePortal } from '../../context/PortalContext';
-import { Bell, ChevronDown, LogOut, Menu, Search, GraduationCap, ShieldCheck, MonitorSmartphone, RotateCcw, Command } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Search, Repeat } from 'lucide-react';
 import ustplogo from '../../assets/ustplogo.png';
 
-export const Navbar = ({ crumb = 'Workspace', pageTitle = 'Overview', onToggleSidebar, onOpenQueue }) => {
-  const { activeUser, personaType, switchPersona, handleResetDemoData, notifications, setCommandOpen } = usePortal();
+const ROLE_LABEL = { student: 'Student', staff: 'Dean & Staff', kiosk: 'Kiosk' };
+
+export const Navbar = ({ crumb = 'Workspace', pageTitle = 'Overview', onOpenQueue }) => {
+  const { session, activeUser, signOut, notifications, setCommandOpen } = usePortal();
   const [openNotif, setOpenNotif] = useState(false);
   const [openUser, setOpenUser] = useState(false);
   const [time, setTime] = useState('');
@@ -30,20 +32,14 @@ export const Navbar = ({ crumb = 'Workspace', pageTitle = 'Overview', onToggleSi
   }, []);
 
   const unread = notifications.filter((n) => n.unread).length;
+  const displayName = activeUser?.name || session?.name || 'Account';
+  const roleLabel = ROLE_LABEL[session?.role] || 'Account';
 
-  const goPersona = (role) => {
-    switchPersona(role);
-    setOpenUser(false);
-    navigate(role === 'admin' ? '/admin' : role === 'kiosk' ? '/kiosk' : '/dashboard');
-  };
+  const handleSignOut = () => { setOpenUser(false); signOut(); navigate('/landing'); };
+  const handleSwitch = () => { setOpenUser(false); signOut(); navigate('/login'); };
 
   return (
     <header className="t-topbar">
-      {onToggleSidebar && (
-        <button type="button" className="t-icon-btn" onClick={onToggleSidebar} aria-label="Open navigation" style={{ display: 'none' }}>
-          <Menu size={18} aria-hidden="true" />
-        </button>
-      )}
       <img src={ustplogo} alt="" aria-hidden="true" style={{ width: 30, height: 30, objectFit: 'contain' }} />
       <div>
         <div className="t-crumb">{crumb} • {time} PHT</div>
@@ -74,7 +70,7 @@ export const Navbar = ({ crumb = 'Workspace', pageTitle = 'Overview', onToggleSi
                       <strong style={{ fontSize: '0.76rem' }}>{n.title}</strong>
                       <span style={{ fontSize: '0.68rem', color: 'var(--t-slate-500)', whiteSpace: 'nowrap' }}>{n.time}</span>
                     </span>
-                    <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--t-slate-600)', marginTop: 3, overflow: 'hidden', displayWebkitBox: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflowWrap: 'anywhere' }}>{n.detail}</span>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--t-slate-600)', marginTop: 3, overflow: 'hidden', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflowWrap: 'anywhere' }}>{n.detail}</span>
                   </button>
                 ))}
               </div>
@@ -83,36 +79,27 @@ export const Navbar = ({ crumb = 'Workspace', pageTitle = 'Overview', onToggleSi
         </div>
         <div style={{ position: 'relative' }} ref={userRef}>
           <button type="button" className="t-profile-btn" onClick={() => setOpenUser((v) => !v)} aria-expanded={openUser} aria-label="Account menu">
-            <span className="t-avatar sm" aria-hidden="true">{activeUser?.avatar || 'AM'}</span>
+            <span className="t-avatar sm" aria-hidden="true">{activeUser?.avatar || (displayName || 'A').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()}</span>
             <span className="t-profile-meta">
-              <strong>{activeUser?.name?.split(' ').slice(0, 2).join(' ') || 'Demo'}</strong>
-              <span>{personaType === 'admin' ? 'Dean' : personaType === 'kiosk' ? 'Kiosk' : 'Student'}</span>
+              <strong>{displayName.split(' ').slice(0, 2).join(' ')}</strong>
+              <span>{roleLabel}</span>
             </span>
             <ChevronDown size={14} aria-hidden="true" />
           </button>
           {openUser && (
             <div className="t-card" role="menu" style={{ position: 'absolute', right: 0, top: 48, width: 250, zIndex: 120, padding: 8 }}>
-              <p style={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--t-slate-500)', padding: '6px 10px' }}>Switch showcase persona</p>
-              <button type="button" role="menuitem" className="t-command-item" onClick={() => goPersona('student')}><GraduationCap size={15} aria-hidden="true" /> Student — Alex Morgan</button>
-              <button type="button" role="menuitem" className="t-command-item" onClick={() => goPersona('admin')}><ShieldCheck size={15} aria-hidden="true" /> Dean — Dr. Vance</button>
-              <button type="button" role="menuitem" className="t-command-item" onClick={() => goPersona('kiosk')}><MonitorSmartphone size={15} aria-hidden="true" /> Lobby kiosk</button>
-              <div style={{ height: 1, background: 'var(--t-line-2)', margin: '6px 0' }} />
-              <button type="button" role="menuitem" className="t-command-item" onClick={() => { handleResetDemoData(); setOpenUser(false); }}><RotateCcw size={14} aria-hidden="true" /> Reset demo data</button>
-              <button type="button" role="menuitem" className="t-command-item" onClick={() => { try { localStorage.removeItem('currentUser'); } catch {} navigate('/landing'); }}><LogOut size={14} aria-hidden="true" /> Exit to landing</button>
+              <div style={{ padding: '10px 12px 8px' }}>
+                <p style={{ fontSize: '0.85rem', fontWeight: 800 }}>{displayName}</p>
+                <p style={{ fontSize: '0.72rem', color: 'var(--t-slate-500)' }}>{activeUser?.email || session?.email || roleLabel}</p>
+              </div>
+              <div style={{ height: 1, background: 'var(--t-line-2)', margin: '4px 0' }} />
+              <button type="button" role="menuitem" className="t-command-item" onClick={handleSwitch}><Repeat size={14} aria-hidden="true" /> Switch account</button>
+              <button type="button" role="menuitem" className="t-command-item" onClick={handleSignOut}><LogOut size={14} aria-hidden="true" /> Sign out</button>
             </div>
           )}
         </div>
       </div>
     </header>
-  );
-};
-
-export const CommandHint = () => {
-  const { setCommandOpen } = usePortal();
-  return (
-    <button type="button" className="t-btn t-btn-ghost t-btn-sm" onClick={() => setCommandOpen(true)}>
-      <Command size={14} aria-hidden="true" /> <span>Jump to…</span>
-    </button>
   );
 };
 

@@ -37,7 +37,7 @@ export const KioskView = () => {
     const queueNo = `A-${Math.floor(10 + Math.random() * 89)}`;
     const created = handleCreateTicket({
       studentId: studentId.trim(), studentName: studentName.trim(),
-      studentEmail: `${studentName.trim().toLowerCase().replace(/\s+/g, '.')}@demo.edu`,
+      studentEmail: `${studentName.trim().toLowerCase().replace(/\s+/g, '.')}@ustp.edu.ph`,
       studentProgram: 'Walk-in (Kiosk)', category,
       title: `Walk-in: ${purpose.trim()}`, purposeOfVisit: purpose.trim(), urgency: 'high',
       meetingMode: "Dean's Office (Room 302B)", preferredContact: 'Lobby display',
@@ -112,7 +112,7 @@ export const KioskView = () => {
                 </div>
                 <div className="t-field" style={{ margin: 0 }}>
                   <label className="t-label" htmlFor="k-name">Full name</label>
-                  <input id="k-name" className="t-input" style={{ fontSize: '1.05rem', padding: '14px' }} value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="Alex Morgan" autoComplete="name" />
+                  <input id="k-name" className="t-input" style={{ fontSize: '1.05rem', padding: '14px' }} value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="e.g. Juan Dela Cruz" autoComplete="name" />
                 </div>
               </div>
               <div className="t-field" style={{ marginTop: 10 }}>
@@ -163,7 +163,7 @@ export const KioskView = () => {
           <div className="t-card t-card-pad" style={{ marginTop: 18 }}>
             <button type="button" className="t-btn t-btn-ghost t-btn-sm" onClick={() => { setScreen('home'); setFound(null); }}><ArrowLeft size={15} aria-hidden="true" /> Main menu</button>
             <h2 style={{ fontSize: '1.3rem', marginTop: 8, color: 'var(--t-navy-950)' }}>Track your request</h2>
-            <p style={{ fontSize: '0.84rem', color: 'var(--t-slate-500)' }}>Try <strong>TKT-8491</strong> or <strong>2024-10492</strong> — live demo data.</p>
+            <p style={{ fontSize: '0.84rem', color: 'var(--t-slate-500)' }}>Try <strong>TKT-8491</strong> or <strong>2024-10492</strong> — to see live tracking.</p>
             <form onSubmit={doLookup} style={{ display: 'flex', gap: 8, marginTop: 12 }}>
               <input className="t-input" style={{ fontSize: '1.05rem', padding: '14px' }} value={lookup} onChange={(e) => setLookup(e.target.value)} placeholder="Ticket # or Student ID" aria-label="Ticket or student ID" />
               <button type="submit" className="t-btn t-btn-primary t-btn-lg"><Search size={18} aria-hidden="true" /> Find</button>
@@ -183,7 +183,7 @@ export const KioskView = () => {
         )}
 
         <footer style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 22, color: '#7d90b3', fontSize: '0.72rem', alignItems: 'center' }}>
-          <MonitorSmartphone size={13} aria-hidden="true" /> Touch-first • High contrast • Nothing leaves this device in demo
+          <MonitorSmartphone size={13} aria-hidden="true" /> Touch-first • High contrast • Private to this terminal
         </footer>
       </div>
     </div>
@@ -191,3 +191,6 @@ export const KioskView = () => {
 };
 
 export default KioskView;
+
+
+
