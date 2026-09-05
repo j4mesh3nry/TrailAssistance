@@ -5,7 +5,7 @@ import { PageHeader } from '../common/PageHeader';
 import StatusBadge from '../common/StatusBadge';
 
 const CATS = [
-  { id: 'Academic Advising', label: 'Advising', desc: 'Waivers, degree audit, course planning', Icon: GraduationCap, bg: '#eef2ff', fg: '#4338ca' },
+  { id: 'Academic Advising', label: 'Advising', desc: 'Waivers, degree audit, course planning', Icon: GraduationCap, bg: '#eef2ff', fg: '#4338ca', dy: 1.5 },
   { id: 'Financial Aid & Scholarships', label: 'Aid & grants', desc: 'Emergency grants, appeals, stipends', Icon: Wallet, bg: '#ecfdf5', fg: '#047857' },
   { id: 'Clearance & Graduation', label: 'Clearance', desc: 'Sign-offs, holds, diplomas', Icon: BadgeCheck, bg: '#f0f9ff', fg: '#0369a1' },
   { id: 'Enrollment & Registration', label: 'Enrollment', desc: 'Add/drop, overload, cross-enroll', Icon: BookOpen, bg: '#fffbeb', fg: '#b45309' },
@@ -122,7 +122,7 @@ export const NewTicketForm = ({ onNavigate, onCreated }) => {
             <div className="t-pick-grid" role="radiogroup" aria-labelledby="cat-label">
               {CATS.map((c) => (
                 <button key={c.id} type="button" role="radio" aria-checked={form.category === c.id} className={`t-pick ${form.category === c.id ? 'selected' : ''}`} onClick={() => setForm((f) => ({ ...f, category: c.id }))}>
-                  <span className="t-pick-icon" style={{ background: c.bg, color: c.fg }}><c.Icon size={24} strokeWidth={2.1} aria-hidden="true" /></span>
+                  <span className="t-pick-icon" style={{ background: c.bg, color: c.fg }}><c.Icon size={24} strokeWidth={2.1} aria-hidden="true" style={c.dy ? { transform: `translateY(${c.dy}px)` } : undefined} /></span>
                   <span className="t-pick-text"><strong>{c.label}</strong><span>{c.desc}</span></span>
                 </button>
               ))}

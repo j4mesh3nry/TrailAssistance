@@ -7,7 +7,7 @@ import ustplogo from '../assets/ustplogo.png';
 import campusImg from '../assets/ustp.jpg';
 
 const ROLES = [
-  { id: 'student', label: 'Student', desc: 'File & track requests', Icon: GraduationCap, bg: '#eef2ff', fg: '#4338ca' },
+  { id: 'student', label: 'Student', desc: 'File & track requests', Icon: GraduationCap, bg: '#eef2ff', fg: '#4338ca', dy: 1.5 },
   { id: 'staff', label: 'Dean & Staff', desc: 'Triage & resolve queue', Icon: ShieldCheck, bg: '#ecfdf5', fg: '#047857' },
   { id: 'kiosk', label: 'Lobby Kiosk', desc: 'Walk-in terminal', Icon: MonitorSmartphone, bg: '#fffbeb', fg: '#b45309' },
 ];
@@ -55,7 +55,7 @@ const Login = () => {
               <div className="t-pick-grid t-role-grid" role="radiogroup" aria-labelledby="role-label">
                 {ROLES.map((r) => (
                   <button key={r.id} type="button" role="radio" aria-checked={role === r.id} className={`t-pick t-role-opt ${role === r.id ? 'selected' : ''}`} onClick={() => setRole(r.id)}>
-                    <span className="t-pick-icon" style={{ background: r.bg, color: r.fg, width: 38, height: 38 }}><r.Icon size={19} aria-hidden="true" /></span>
+                    <span className="t-pick-icon" style={{ background: r.bg, color: r.fg, width: 38, height: 38 }}><r.Icon size={19} aria-hidden="true" style={r.dy ? { transform: `translateY(${r.dy}px)` } : undefined} /></span>
                     <span className="t-pick-text"><strong style={{ fontSize: '0.8rem' }}>{r.label}</strong><span style={{ fontSize: '0.68rem' }}>{r.desc}</span></span>
                   </button>
                 ))}
